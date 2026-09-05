@@ -1,0 +1,132 @@
+---
+title: "DATA2004 Refresher"
+subtitle: "Tidyverse + Quarto Review"
+author: "[Your Name]"
+format: html
+editor: visual
+---
+
+## Before you begin
+
+The goal of this refresher is to practice the R skills you learned in DATA1004 and get more comfortable working in a Quarto document.
+
+This is **not new material**. You should look through your notes and materials from DATA1004 and the R4DS book for this course if you get stuck. And **please** feel free to email me if you want any help at all.
+
+As you work:
+
+1.  Write your R code inside code chunks.
+2.  Write your answers and interpretations as normal text **outside** code chunks.
+3.  Render your document periodically rather than waiting until the end.
+4.  Your final document should render successfully to HTML.
+
+Please refer to this [Quarto guide](https://quarto.org/docs/get-started/hello/rstudio.html) for a helpful review of Quarto.
+
+Please refer to Dr. LeVan's [Book](https://levanjm.github.io/Book-2/) for additional review of R.
+
+You will **not** be graded for this. I realized today it's been over a year since some of us have worked in R at all, so this is to give you a chance to see what you remember, give you a chance to review, and give you the opportunity to become reacquainted with Quarto. :)
+
+There are gaps before headings for you to put your code chunks and written responses.
+
+## Setup
+
+First, let's load the packages we need.
+
+You'll need to run `install.packages(palmerpenguins)` **once** in your console if you haven't done so before.
+
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+```
+
+We will use the `penguins` dataset from the `palmerpenguins` package.
+
+```{r}
+penguins <- penguins
+glimpse(penguins)
+```
+
+### Getting oriented
+
+Two questions:
+
+1.  What are the dimensions of the `penguins` dataset?
+2.  What does one row of `penguins` seem to represent?
+
+## Getting reacquainted with the basic verbs 
+
+### Select
+
+Create an object called `penguins_small` that contains only:
+
+1.  species
+2.  island
+3.  sex
+4.  body_mass_g
+5.  flipper_length_mm
+
+### Filter
+
+Using the original `penguins` dataframe, create a dataframe containing only **Adelie** penguins using `filter().`
+
+Using the original `penguins` dataframe, find all penguins with a body mass greater than **5,000 grams** using `filter`.
+
+And then use `glimpse()` to look at your results for all of the above.
+
+### Creating new variables 
+
+Create a new dataframe with a variabled called `body_mass_kg` that converts each penguin's body mass in kilograms.
+
+# 
+
+## Summaries
+
+Let's say I want you to compare three penguin species, but I don't tell you which three in my email.
+
+First, find out the different values in `species` and then select any three (since I didn't think to email you again and left my office) and give me summaries of
+
+1.  The number of observations;
+2.  mean body mass;
+3.  median body mass;
+4.  mean flipper length
+
+*note:* some could have missing values. how should you deal with that?
+
+## More independent review
+
+From here on, I will tell you the result I want and then it is up to you to figure it out.
+
+### A)
+
+Among **female** penguins, which species has the greatest average body mass?
+
+### B)
+
+For each species and island combination, determine
+
+1.  how many observations are present;
+2.  mean flipper length
+
+Then arrange the resulting table from **greatest to smallest** mean flipper length
+
+### C)
+
+Which individual penguins have the five greatest recorded body mass? Your result should contain only:
+
+1.  species
+2.  island
+3.  sex
+4.  body mass
+
+## Viz review
+
+1.  Create a visualization that compares the **distribution of body mass across species.**
+    1.  Give your plot a meaningful title and label your axes.
+2.  Create a scatterplot showing the relationship between flipper length and body mass.
+    1.  Create a new scatterplot for this relationship, but differentiate species by any aesthetic of your choosing.
+    2.  Create a new scatterplot for this relationship, but only include **three** species and then facet to examine the relationship across three species separately.
+
+## Put it together
+
+Hopefully now you've done enough of the review to get a completely open-ended question. For your last question, here's what id like to see
+
+Do male and female penguins appear to differ in body mass, and does that difference look similar across species?
