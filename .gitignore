@@ -47,3 +47,8 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+test.R
+
+*_files/
+.quarto/
+*.html
