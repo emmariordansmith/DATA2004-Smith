@@ -1,8 +1,10 @@
 ---
 title: "DATA2004 Refresher"
 subtitle: "Tidyverse + Quarto Review"
-author: "[Your Name]"
-format: html
+author: "Emma Smith"
+format: 
+  html:
+    embed-resources: TRUE
 editor: visual
 ---
 
@@ -34,6 +36,9 @@ First, let's load the packages we need.
 You'll need to run `install.packages(palmerpenguins)` **once** in your console if you haven't done so before.
 
 ```{r}
+#| echo:FALSE
+#| label: Chunk 1
+
 library(tidyverse)
 library(palmerpenguins)
 ```
@@ -52,7 +57,9 @@ Two questions:
 1.  What are the dimensions of the `penguins` dataset?
 2.  What does one row of `penguins` seem to represent?
 
-## Getting reacquainted with the basic verbs 
+The dimensions of the dataset are 344 penguins with eight recorded variables of each.
+
+## Getting reacquainted with the basic verbs
 
 ### Select
 
@@ -72,7 +79,23 @@ Using the original `penguins` dataframe, find all penguins with a body mass grea
 
 And then use `glimpse()` to look at your results for all of the above.
 
-### Creating new variables 
+```{r}
+#| echo: FALSE
+#| label: filters
+
+penguins_adelie<-penguins%>%
+  filter(species=="Adelie")
+
+penguins_heavy<-penguins%>%
+  filter(body_mass_g>=5000)
+
+glimpse(penguins_adelie)
+
+glimpse(penguins_heavy)
+
+```
+
+### Creating new variables
 
 Create a new dataframe with a variabled called `body_mass_kg` that converts each penguin's body mass in kilograms.
 
