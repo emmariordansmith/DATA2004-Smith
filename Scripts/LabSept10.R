@@ -115,4 +115,3 @@ data_trimmed_numeric%>%
   count()
 
 #3144 counties are in this file
-
