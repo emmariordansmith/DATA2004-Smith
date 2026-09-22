@@ -34,9 +34,10 @@ Import the three files. You'll need to tell R to treat `""`, `"NA"`, and `"\\N"`
 
 ```{r}
 #| warning: false
+#| echo: false
 #| label: read in datasets
 
-#rm(list=ls())
+rm(list=ls())
 
 library(tidyverse)
 
@@ -45,6 +46,12 @@ library(tidyverse)
 #figure out how to change it. So instead I imported the dataset
 #and found another way to read multiple values as NA
 #however, I do understand how the na argument within read_csv works
+
+results<-read_csv("Data/Raw/results.csv")
+
+races<-read_csv("Data/Raw/races.csv")
+
+qualifying<-read_csv("Data/Raw/qualifying.csv")
 
 na_values<-c("","NA","\\N")
 
@@ -63,15 +70,16 @@ Inspect your tables.
 
 ```{r}
 #| warning: false
+#| echo: false
 #| label: tables
 
 glimpse(races)
 glimpse(results)
 glimpse(qualifying)
 
-unique(races$raceId)
-unique(results$resultID)
-unique(qualifying$qualifyId)
+#unique(races$raceId)
+#unique(results$resultID)
+#unique(qualifying$qualifyId)
 
 ```
 
@@ -110,13 +118,14 @@ Your qualifying table should include:
 
 ```{r}
 #| warning: false
+#| echo: false
 #| label: qualifying table
 
 qualifying_truncated<-qualifying%>%
   select(qualifyId,raceId,driverId,position)
 
 glimpse(qualifying_truncated)
-unique(qualifying_truncated$qualifyId)
+#unique(qualifying_truncated$qualifyId)
 
 ```
 
@@ -129,13 +138,14 @@ Your results table should include:
 
 ```{r}
 #| warning: false
+#| echo: false
 #| label: results table
 
 results_truncated<-results%>%
   select(resultId,raceId,driverId,positionOrder)
 
 glimpse(results_truncated)
-unique(results_truncated$resultId)
+#unique(results_truncated$resultId)
 
 ```
 
@@ -147,6 +157,7 @@ Your races table should include:
 
 ```{r}
 #| warning: false
+#| echo: false
 #| label: races table
 
 races_truncated<-races%>%
@@ -154,7 +165,7 @@ races_truncated<-races%>%
 
 glimpse(races_truncated)
 
-unique(races_truncated$raceId)
+#unique(races_truncated$raceId)
 
 ```
 
@@ -184,13 +195,14 @@ Now actually do the join.
 
 ```{r}
 #| warning: false
+#| echo: false
 #| label: joins!
 
 joined_results<-results_truncated%>%
   inner_join(qualifying_truncated,join_by(raceId,driverId),
              relationship="many-to-one")
 
-unique(joined_results$qualifyId)
+#unique(joined_results$qualifyId)
 
 ```
 
@@ -202,6 +214,7 @@ R did agree with me, because the right dataset (results) was more than the one i
 
 ```{r}
 #|warning: false
+#|echo: false
 #|label: no matches?
 
 sum(is.na(joined_results$raceId))
@@ -214,6 +227,7 @@ Then add the race year and race name to your joined table.
 
 ```{r}
 #|warning: false
+#|echo: false
 #|label: add race year and name
 
 joined_results2<-joined_results%>%
@@ -241,6 +255,7 @@ One row would represent one unique driver and race combination.
 
 ```{r}
 #|warning: false
+#|echo: false
 #|label: disinct
 
 distinct_results<-distinct(results_truncated,raceId,driverId,.keep_all=TRUE)
@@ -257,6 +272,7 @@ Now find the combinations that appear in the results data but *not* in the quali
 
 ```{r}
 #|warning: false
+#|echo: false
 #|label: combinations
 
 missing_combos<-distinct_results%>%
@@ -279,6 +295,7 @@ Attach the race year to those unmatched combinations, then plot the count of unm
 
 ```{r}
 #|warning: false
+#|echo: false
 #|label: add to unmatched
 
 missing_combos<-missing_combos%>%
@@ -311,6 +328,7 @@ Using only the records where you have both a qualifying position and a finishing
 
 ```{r}
 #|warning: false
+#|echo: false
 #|label: relationship between position and finishing order
 
 joined_results2 |> 
