@@ -1,0 +1,316 @@
+---
+title: "Weekly 2: Coffee Ratings"
+author: "Emma Smith"
+format:
+  html:
+    embed-resources: true
+editor: visual
+---
+
+## Overview
+
+You want to know which producers grow the best-rated coffee.
+
+That sounds like a `group_by()` and a `summarise()`. The problem is that `producer` was typed by different people in different ways, so the same producer can appear under several labels, and some labels are not producers at all.
+
+Your job is to work out how much of that you can fix, how much you shouldn't, and what that does to the answer.
+
+A few things:
+
+1.  Add `#| echo: false` to your code blocks.
+2.  Use a new block when you move to a new task.
+3.  Code goes in the blocks. **Answers go outside them**, as prose. A comment inside a code chunk is not an answer.
+4.  Keep the original `producer` column. Every cleaned version goes in a **new** column.
+
+Due Monday at 8pm.
+
+## Your data
+
+Import `coffee_ratings.csv` and inspect it.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: import
+
+rm(list=ls())
+
+library(tidyverse)
+
+coffee<-read_csv("Data/Raw/coffee_ratings.csv")
+
+glimpse(coffee)
+
+```
+
+## Before you start
+
+> What does one row represent?
+
+One row represents one cup of coffee, and indicates ratings as well as origins and production of the beans that made that cup of coffee.
+
+> Is there a column that uniquely identifies a row? How would you check?
+
+There is not a column with a unique identifier. None of the columns have 1339 distinct entries.
+
+> Is `producer` a key? What does it mean that the same producer can appear on many rows?
+
+'producer' is not the primary key, because there are not 1339 unique producers. It means that one producer is not unique to one cup of coffee.
+
+## How many producers?
+
+Count the distinct values of `producer`.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: producer
+
+n_distinct(coffee$producer)
+
+coffee%>%
+  count(producer)%>%
+  distinct()%>%
+  arrange(desc(n))%>%
+  print(n=50)
+
+```
+
+> How many distinct values are there?
+
+There are 692 distinct producers.
+
+> How many rows have no producer recorded? Does your distinct count include "missing" as one of its values? How would you check?
+
+The initial distinct count includes missing as one of its values. You check by counting the number of times each distinct one appears, and you find that 231 have no producer recorded. There are also some entries with "-" or "N/a" listed.
+
+> Why shouldn't you read that number as the number of distinct producers?
+
+If that number, 692, includes NA, then it is not the correct number of distinct producers. There could be more not included, and if there were not, then it is at least three too many distinct values that it counts.
+
+## Normalize the representation
+
+Create a new column, `producer_clean`, that makes the producer labels consistent in case and whitespace. Keep `producer`.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: clean
+
+coffee2<-coffee%>%
+  mutate(producer_clean=producer%>%
+           str_to_upper%>%
+           str_squish)
+
+n_distinct(coffee2$producer_clean)
+
+coffee2%>%
+  count(producer_clean)%>%
+  distinct()%>%
+  arrange(desc(n))%>%
+  print(n=50)
+
+```
+
+> How many distinct values does `producer_clean` have?
+
+producer_clean has 666 distinct values now that capitalization and spacing has been normalized.
+
+> Is that the number of producers now? What does the reduction establish, and what does it *not* establish?
+
+This is still not the number of producers. The reduction established that any variation of only whitespace or capitalization was the same, but it did not establish that any spelling errors or extra characters were the same. For example, 'Impanema Agricola' and 'Impanema Agricola SA' or 'Impanema Agricola S.A.' It did not normalize things like this.
+
+## Which labels actually merged?
+
+A single number doesn't tell you what happened. Build a table showing every `producer_clean` value that more than one raw `producer` value was combined into, along with the raw values that went into it.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: table
+
+coffee_simple<-coffee2%>%
+  select(producer,producer_clean)
+
+producer_distinct<-distinct(coffee_simple,producer,producer_clean,.keep_all=TRUE)
+
+producer_count<-producer_distinct%>%
+  count(producer_clean)%>%
+  arrange(desc(n))%>%
+  filter(n>=2)
+
+producer_count_joined<-producer_count%>%
+  left_join(producer_distinct,join_by(producer_clean))
+
+```
+
+> How many cleaned labels absorbed more than one raw label?
+
+22 clean labels absorbed more than one raw label.
+
+> Look through them. Is every merge one you would stand behind?
+
+I stand behind each of these merges, as there are no variations in spelling or title that have been merged.
+
+> Is this table more useful than knowing the number of labels went down? Why?
+
+This table is more useful because it shows exactly which observations were combined into one in a smaller dataset that is not 666 observations long.
+
+## Does it change anything?
+
+Compare the La Plata coffees before and after normalizing. For each version, report the number of coffees and the mean and median `total_cup_points`.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: la plata 
+
+#before normalizing
+coffee%>%
+  filter(producer=="La Plata")%>%
+  count() #30 coffees
+
+coffee%>%
+  filter(producer=="La Plata")%>%
+  summarise(mean_points=mean(total_cup_points),
+            median_points=median(total_cup_points))
+#mean=83.64967
+#median 83.75
+
+#after normalizing
+
+coffee2%>%
+  filter(producer_clean=="LA PLATA")%>%
+  count() #39 coffees
+
+coffee2%>%
+  filter(producer_clean=="LA PLATA")%>%
+  summarise(mean_points=mean(total_cup_points),
+            median_points=median(total_cup_points))
+  
+#mean=83.50821
+#median=83.58
+
+
+```
+
+> What changed more: the number of coffees or the average score?
+
+The number of coffees changes more, going from 30 to 39. The average and median scores vary only by tenths.
+
+> Suppose you had reported how many coffees La Plata produced using the raw column. How far off would you have been?
+
+You would have been off by nine coffees, or by 30, depending on the capitalization you used for filtering "La Plata" or "LA PLATA".
+
+## What case and whitespace didn't catch
+
+Some labels still differ only in punctuation, i.e., a period, a comma, a slash.
+
+Sort the distinct values of `producer_clean` and read through them. Near-duplicates end up next to each other.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: near-duplicates
+
+sort(producer_distinct$producer_clean)
+
+```
+
+> Find at least **three** pairs of labels that differ only in punctuation.
+
+AGRICOLA EL PILAR, SA. versus AGRICOLA EL PILAR, S.A.
+
+AGRICOLA NUEVA GRANADA, S. A. versus AGRICULA NUEVA GRANADA, SA.
+
+CONQUISTA / MORITO versus CONQUISTAMORITO
+
+
+Now use exact replacement to make each pair consistent. Change only the values you identified and nothing else.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: exact replacement
+
+producer_distinct2<-producer_distinct%>%
+  mutate(producer_clean=case_when(
+    producer_clean=="CONQUISTAMORITO"~"CONQUISTA/MORITO",
+    producer_clean=="AGRICOLA EL PILAR, SA."~"AGRICOLA EL PILAR, S.A.",
+    producer_clean=="AGRICOLA NUEVA GRANADA, S.A"~"AGRICOLA NUEVA GRANADA, S.A.",
+    TRUE~producer_clean
+  ))
+
+
+```
+
+> For each change, say why you're confident it's the same producer.
+
+For Agricola EL Pilar, there is only a difference in whether a period appears between S & A. There is no spelling or difference in name that indicates it is not a variation in punctuation. The same is true of Agricola Nueva Granada. For Conquista/Morito, the only difference is that one entry lacked the slash between the names. There is also no difference in naming other than punctuation that would indicate a separate company.
+
+> How long did it take to find those by reading? How many labels did you have to look at?
+
+It took a second, but since they were all in the first three letters of the alphabet when sorted, it didn't take as long as it could have. I had to read up to entry 123 to find three examples for this.
+
+## The top producers
+
+Using `producer_clean`, find the ten producers with the most coffees in the data.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: top producer
+
+top_producer<-coffee2%>%
+  count(producer)%>%
+  arrange(desc(n))%>%
+  slice_head(n=10)
+
+```
+
+Look at that list carefully.
+
+> Is every entry in it a producer? If not, which ones aren't, and what do they mean?
+
+Not every entry is a producer. The top "producer" is NA, which is not relevant. "VARIOS" could also be various, as some entries are listed as various.
+
+> Is any single producer split across more than one row of the list?
+
+Yes, La Plata and possibly Impanema Agricola, S.A.
+
+Now look at these four raw labels:
+
+- Ipanema Agricola
+- Ipanema Agricola S.A
+- Ipanema Agrícola SA
+- Ipanema Coffees
+
+> Should these be combined into one producer? **Don't recode them.** Explain whether combining them would be normalization or classification, and what evidence you'd need before doing it.
+
+Combining "Impanema Agricola S.A" and "Impanema Agricola SA" seems to be the only one you would do without extra research, since it is only a difference in punctuation. The other two entries, however, are missing part of the name or have a different name that could indicate they are different producers entirely. To combine all four, you would need evidence that they are not separate companies.
+
+> If you did combine them, what would happen to your top-ten list?
+
+With three of the top ten being combined, you would have two new entries at least in the top ten producers.
+
+## What this means for your question
+
+> A classmate says: "I reduced the producer column from 692 labels to 666, so the cleaned column is better." Is that justified? Explain.
+
+Like above, reducing the producer column from 692 to 666 through normalization fixes some but not all errors. The cleaned column is better, in that it would give you more accurate results than the raw column, but neither column is completely perfect as the producer_clean column still retains any spelling or punctuation variations.
+
+> You set out to find which producers grow the best-rated coffee. Given everything above, what would you need to tell someone before they trusted your answer?
+
+You would need to tell someone the normalizations you made, and then if any exact replacements were made, how and why you assumed that those exact replacements were indeed the same producer. This both ensures them that all ratings from the same producer are included in the data, and that the result will hopefully be more accurate.
+
+## Disclosure appendix
+
+> What did you try first? Include the code you wrote and the actual error message, or a clear description of the problem if there was no error.
+
+I didn't have any error messages to deal with in this weekly, only a process issue with a lot of trial and error.
+
+> If you used an AI system: the exact prompt, exactly what it returned, what it got wrong or left unclear, and what you changed.
+
+I did not use any AI. I only used the book given, past notes & weeklies, and an email to Dr. Hales to complete this assignment. 
+
+> If you didn't use one, say so.
