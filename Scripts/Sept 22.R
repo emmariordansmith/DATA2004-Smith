@@ -16,6 +16,7 @@ crashes_core <- crashes |>
     `NUMBER OF PERSONS KILLED`
   )
 
+
 persons_core <- persons |> 
   select(
     UNIQUE_ID,

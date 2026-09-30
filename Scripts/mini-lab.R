@@ -21,6 +21,7 @@ pedestrian_f<-persons%>%
 # Keep COLLISION_ID, BOROUGH, and the five vehicle type columns. 
 # how can we select every variable that starts with "VEHICLE TYPE CODE"?
 
+
 crashes_condensed<-crashes%>%
   select(COLLISION_ID,BOROUGH,`VEHICLE TYPE CODE 1`,`VEHICLE TYPE CODE 2`,`VEHICLE TYPE CODE 3`,
          `VEHICLE TYPE CODE 4`,`VEHICLE TYPE CODE 5`,)

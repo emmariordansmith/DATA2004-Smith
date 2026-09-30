@@ -231,6 +231,7 @@ persons_borough%>%
 # Some of those rows will have no borough. Before you filter them out:
 # how many are there, and are they all missing for the same reason?
 
+
 #there are 103,229 rows with no borough, which are missing because the bororugh
 #was not recorded in the dataset crashes, and so has been expanded to all individuals
 #in that crash

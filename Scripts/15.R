@@ -79,6 +79,7 @@ glimpse(fish_huron)
 
 #Grain: one row represents one year of the weight of one species caught in a given region
 
+
 #the total catch for the lake is:
 
 
