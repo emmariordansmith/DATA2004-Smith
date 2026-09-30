@@ -7,6 +7,7 @@ format:
 editor: visual
 ---
 
+
 ## Overview
 
 You want to know which producers grow the best-rated coffee.
@@ -225,7 +226,6 @@ AGRICOLA NUEVA GRANADA, S. A. versus AGRICULA NUEVA GRANADA, SA.
 
 CONQUISTA / MORITO versus CONQUISTAMORITO
 
-
 Now use exact replacement to make each pair consistent. Change only the values you identified and nothing else.
 
 ```{r}
@@ -311,6 +311,6 @@ I didn't have any error messages to deal with in this weekly, only a process iss
 
 > If you used an AI system: the exact prompt, exactly what it returned, what it got wrong or left unclear, and what you changed.
 
-I did not use any AI. I only used the book given, past notes & weeklies, and an email to Dr. Hales to complete this assignment. 
+I did not use any AI. I only used the book given, past notes & weeklies, and an email to Dr. Hales to complete this assignment.
 
 > If you didn't use one, say so.

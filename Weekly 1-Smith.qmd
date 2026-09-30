@@ -9,6 +9,7 @@ editor: visual
 
 ## Overview
 
+
 You want to know whether qualifying performance is related to finishing performance in Formula 1.
 
 That turns out to be two problems, not one. Qualifying results and race results live in separate tables, so you have to connect them. And the qualifying data do not cover the whole history of the results data, so connecting them quietly decides which races your answer is about.
