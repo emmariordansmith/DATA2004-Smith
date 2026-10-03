@@ -1,0 +1,28 @@
+---
+title: "Proposal"
+author: "Emma Smith, Danielle Pruitt, Grayson Pham"
+format: html
+editor: visual
+---
+
+## Project Proposal, Data 2004
+
+*I am submitting this proposal on behalf of Grayson & Danielle as well. We all worked on it in a google doc, and I am the one submitting it*
+
+### Topic & Scope
+
+*Emma*
+
+Our group would like to examine trends in the music industry for this project. Specifically, we want to look at the trend of genre preference between 1980 to now. We want to know whether the overall most popular genre has changed within this span of time, what categories may have newly emerged in popularity as time goes on, and which genres may have waned in popularity over time. We can do this by looking at overall popularity based on sales and streaming, but possibly also by including some demographical data as well. For example, the most popular genre among teenages, or the most popular genre of a particular generation as they age. However, we do not yet know whether this data will be included in the information that we find. We will limit the scope of our project to between the years of 1980 and now, because a larger date range may give us too much to work with or write about. There are also almost certainly many new genres and popularity changes between 1900 and 1980, and the earlier the year or decade, the less likely that there will be recorded data that we can utilize. We also want to limit the scope of our project to the sales and streaming of music, only. We do not want to consider data related to concerts, radio plays, or other metrics that may arise while we look for our datasets.
+
+### Data Acquisition
+
+*Danielle*
+
+We will likely have to acquire multiple datasets for this project, maybe one per decade since the way most people listen to music has changed over time. For the 1980s we would want to examine record sales by musical genre. There are several independent record stores still in business that were selling records in the 1980s, so we could probably find record sale data from at least one of these. For the 1990s we could take a similar approach, but look at sales of cassette tapes. Again, we would get sale data from either record stores or music shops (focusing on sales of cassette tapes). In the 2000s CDs became the primary way to listen to music, so we would want to get data on the sale of CDs to examine the 2000s decade. We could probably get this data from either record stores still or from department stores such as Walmart or Target. In the 2010s streaming music started to dominate. This will be the easiest dataset to obtain. We could find streaming data from Spotify, Amazon Music, iHeartRadio, etc. Ultimately, we will probably have to join at least 4 datasets (1 for each decade) together into one big dataset to compare music preferences across decades.
+
+### Problems & Backup Plan
+
+*Grayson*
+
+One of the biggest issues that we foresee is how we are going to combine the data in a meaningful way. We are using purchase data for pre 2010s but we are using streaming data in the 2010s and 2020s. We are going to have to find a way to go from a one time purchase to a record of how many times anyone listened to the song. This will prove to be an issue because one person can listen to a song multiple times and each of those will be counted towards that one genre being more popular even though it is only one person listening to it. A backup plan for this would be to filter by the user and limit the count to one person per song. That way the data truly represents how many people are listening to the songs. Another issue that we foresee is how to deal with album vs song listening. When you buy a CD, Record, or tape you are often buying a whole album while when you stream something you can just stream one song off of it. A backup plan for this problem would be to count each song on an album as a record of the genre for a purchase so that streaming does not get favored disproportionately.
