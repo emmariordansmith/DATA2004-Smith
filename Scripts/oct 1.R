@@ -174,6 +174,9 @@ requests |>
 # first, make a plot of requests per week. however, notice there isn't a week column. 
 # how should you make one? 
 
+requests<-requests%>%
+  mutate()
+
 # second, here is a larger bit of practice. 
 
 ## your question: which city agencies close 311 requests fastest?

@@ -7,7 +7,6 @@ format:
 editor: visual
 ---
 
-
 ## Overview
 
 You want to know which producers grow the best-rated coffee.
