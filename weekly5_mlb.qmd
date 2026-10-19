@@ -1,0 +1,378 @@
+---
+title: "Weekly 5: How Did the Reds Do?"
+author: "Emma Smith"
+format:
+  html:
+    embed-resources: true
+editor: visual
+---
+
+# **How did the Cincinnati Reds do in the 2026 regular season?**
+
+How many games did they play, how many did they win, and when did they play them? You'll make a request, turn what comes back into a table, and then check whether the table says what you think it says.
+
+A few things:
+
+1.  Add `#| echo: false` to your code blocks.
+2.  Use a new block when you move to a new task.
+3.  Code goes in the blocks. **Answers go outside them**, as prose. A comment inside a code chunk is not an answer.
+4.  Save the raw response to a file **once**, then work from the file. You'll see why in Part 1.
+
+Due Monday at 8pm.
+
+# Part 1: Ask
+
+## The request
+
+These parameters will get you the Reds' 2026 regular season:
+
+| parameter  | value  | meaning               |
+|------------|--------|-----------------------|
+| `sportId`  | `1`    | Major League Baseball |
+| `teamId`   | `113`  | Cincinnati Reds       |
+| `season`   | `2026` |                       |
+| `gameType` | `R`    | regular season        |
+
+Build the request, send it, and check the status.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: request
+#| eval: false
+
+library(tidyverse)
+library(httr2)
+
+req_mlb<-request("https://statsapi.mlb.com/api/v1/schedule")%>%
+  req_url_query(
+    format="geojson",
+    sportId="1",
+    teamId="113",
+    season="2026",
+    gameType="R")
+
+req_mlb
+
+req_mlb%>%req_dry_run()
+
+mlb_response<-req_mlb%>%
+  req_perform()
+
+resp_status(mlb_response) #correct! Yay
+
+```
+
+## Read the fine print
+
+The first field in every response is `copyright`.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: fine print
+#| eval: false
+
+mlb_resp<-mlb_response%>%
+  resp_body_json()
+
+print(mlb_resp$copyright)
+
+```
+
+> What does it say? Follow the link it gives you. What kinds of use does MLB permit?
+
+It says that this content cannot be used in bulk or for commercial use without permission from the MLBAM. Individual use is permitted.
+
+> Is this assignment a permitted use? Would it still be if all 25 of us wrote a loop that requested every game of every season? Explain.
+
+I think this assignment is permitted use, as we are not publishing it or making commercial use of it. Even if we all wrote a loop, I doubt that constitutes bulk?
+
+## Save it, then work from the file
+
+Save the raw response to `data/raw/reds_2026.json`. Then read it back in with `jsonlite::read_json()` and use **that** for the rest of the assignment. Put the saving and the reading in **separate** blocks. Once the file is saved, add `#| eval: false` to every block that sends a request **and** to the block that saves, so rendering reads your file instead of asking MLB again.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: saving raw response
+#| eval: false
+
+library(jsonlite)
+
+write_json(mlb_resp,path="Data/Raw/reds_2026.json")
+
+mlb_reds<-read_json("Data/Raw/reds_2026.json")
+
+```
+
+> Why work from the file instead of sending the request every time you render? Give two reasons.
+
+Working from a file would save the data as is, meaning if anything from the original url changed, the data that I collected and save doesn't unless I go back and update it. A second reason would be that
+
+> Fill this in:
+>
+> - URL: https://statsapi.mlb.com/api/v1/schedule
+> - Date and time requested: 10/18/26 at noon
+> - Status: 200
+
+> If you ran this same request in March 2027, would you get exactly the same file? What might change?
+
+March would be the beginning of the next regular season, and they wouldn't have played all of the games yet. If you're asking whether or not the 2026 results would have changed by then, they probably would not, because the regular season 2026 is over.
+
+# Part 2: Make it a table
+
+## Look before you reshape
+
+Use `str()` the way we did in class: look at one date, then one game inside it.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: table
+#| eval: false
+
+names(mlb_reds)
+
+```
+
+> Which parts are `[ ]` (lists of things, which become rows) and which are `{ }` (named things, which become columns)? Write the path from the top of the response down to the Reds' score in one game.
+
+The parts that are [] the rows, which are represented by the 162 individual dates. The {} are the things listed under dates/games, like gamePk and gameDate.
+
+The path from this response to the score of a reds game would be mlb_reds/dates/games/teams/home/score
+
+## Rectangle it
+
+Create a tibble called `reds` with **one row per entry in `games`** and these columns:
+
+- `game_pk` (`gamePk`)
+- `game_date` (`gameDate`)
+- `official_date` (`officialDate`)
+- `status` (`status` to `detailedState`)
+- `home_id`, `away_id` (the team ids)
+- `home_score`, `away_score`
+
+Start from `tibble(day = sched$dates)`. In class, `features` was one list of earthquakes. Here, games are a list **inside** a list of dates. How many times will you need `unnest_longer()`? Once you're at one row per game, `hoist()` works the way it did in class.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: tibble
+#| eval: false
+
+reds <- tibble(day=mlb_reds$dates)
+
+reds<-reds%>%
+  hoist(day,games="games")
+
+reds<-reds%>%
+  unnest_longer(games)
+
+reds<-reds%>%
+  hoist(games,
+        game_pk=c("gamePk"),
+        game_date=c("gameDate"),
+        official_date=c("officialDate"),
+        status=c("status","detailedState"))
+
+reds<-reds%>%
+  hoist(games,teams="teams")
+
+reds<-reds%>%
+  hoist(teams,
+        away="away",
+        home="home")
+
+reds<-reds%>%
+  unnest_wider(away,names_sep="_")
+
+reds<-reds%>%
+  unnest_wider(home,names_sep="_")
+
+reds<-reds%>%
+  hoist(away_team,
+        away_id="id")
+
+reds<-reds%>%
+  hoist(home_team,
+        home_id="id")
+
+reds<-reds%>%
+  select(game_pk,game_date,official_date,status,home_id,away_id,home_score,away_score) #thank god finally
+
+```
+
+> How many rows does `reds` have? What does `totalGames` say?
+
+Reds has 165 rows in it. totalGames says that the reds played 165 games.
+
+> A Major League regular season is 162 games. What's going on?
+
+# Part 3: What is one row?
+
+## Check the key
+
+`gamePk` is MLB's id for a game.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: distinct
+#| eval: false
+
+reds%>%
+  distinct(game_pk)%>%
+  count()
+
+#there are 162 distinct gamepk
+
+reds2<-reds
+
+reds2<-reds2%>%
+  mutate(game_pk=as.numeric(unlist(game_pk)))
+
+reds2%>%
+  group_by(game_pk)%>%
+  count()%>%
+  arrange(desc(n))%>%
+  print(n=15)
+
+```
+
+> How many distinct `game_pk` values are there? Which ones appear more than once?
+
+There are 162 distinct game_pk values listed. The values that appear twice are 824490, 824514, and 824518.
+
+> Look at every row for those games, alongside their other columns. What happened to them?
+
+These were games that were originally postponed, and so are double counted by the original date and then by the date on which they actually took place.
+
+> Hint: you might want to use a filtering join :)
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: filtering join
+
+reds3<-reds |> 
+  distinct(game_pk,.keep_all=TRUE) 
+
+doubles<-reds2|> 
+  filter(game_pk==824490)
+
+reds2<-reds2 |> 
+  mutate(status=as.character(unlist(status))) |> 
+  filter(status!="Postponed") #I don't think this was the goal but it worked
+
+```
+
+## Fix the grain
+
+You want one row per game that was actually played. Use `distinct(game_pk, .keep_all = TRUE)` below.
+
+> For the games that appeared twice, which row did `distinct()` keep? Look at the scores. Is that the row you wanted?
+
+It did work, because I used a filter and not a distinct. But using a distinct, it does not keep the FINAL games specifically, so not the row that was wanted.
+
+> Fix it. Show that your result has one row per `game_pk` and that every row has a score.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: check row and score
+
+reds2%>%
+  distinct(game_pk)%>%
+  count()
+
+reds2<-reds2%>%
+  mutate(home_score=as.numeric(unlist(home_score)),
+         away_score=as.numeric(unlist(away_score)))
+
+reds2%>%
+  summarise(home_na=sum(is.na(home_score)),
+            away_na=sum(is.na(away_score)))
+
+```
+
+# Part 4: When did they play?
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: dates 
+
+reds2<-reds2%>%
+  mutate(game_when=ymd_hms(game_date),
+         official_when=ymd(official_date))
+
+```
+
+> Parse `game_date`. What time zone is it in? How do you know?
+
+The time zone is UTC, because I did not specify a time zone in my code.
+
+> For how many games does the **date** part of `game_date` differ from `official_date`? Look at a few. What do they have in common?
+
+All entries where the official date differs from the game date show a time on game_date that is past midnight. This could indicate they took place in a different time zone.
+
+> Count the Reds' games by day of the week twice: once using `game_date` and once using `official_date`. Do you get the same counts? Which one answers "what day did they play?"
+
+```{r}
+#|echo: false
+#|label: count the days
+
+reds2<-reds2%>%
+  mutate(wday_g=wday(game_when,label=TRUE),
+         wday_o=wday(official_when,label=TRUE))
+  
+reds2%>%
+  count(wday_g)
+
+reds2%>%
+  count(wday_o)
+  
+```
+
+You do not get the same counts for weekdays when looking at official dates and game dates. The one that shows the day that they actually played is Official Date.
+
+> **Optional:** Convert `game_date` to `America/New_York`. Does that make it agree with `official_date`? Would Eastern time be the right choice for a Reds game played in San Diego?
+
+
+```{r}
+#|echo: false
+#|label: optional
+
+reds2<-reds2%>%
+  mutate(america_when=ymd_hms(game_date,tz="America/New_York"))
+
+reds2_test<-reds2%>%
+  mutate(wday_a=wday(america_when,label=TRUE),
+         wday_o=wday(official_when,label=TRUE))
+  
+reds2_test%>%
+  count(wday_a)
+
+reds2_test%>%
+  count(wday_o)
+
+```
+
+This does make the dates line up with Official Date! Though, standardizing everything to one time zone does not necessarily correctly represent a game in San Diego. 
+
+# Disclosure appendix
+
+> What did you try first? Include the code you wrote and the actual error message, or a clear description of the problem if there was no error.
+
+> If you used an AI system: the exact prompt, exactly what it returned, what it got wrong or left unclear, and what you changed.
+
+> If you didn't use one, say so.
+
+I did not use AI, I only used the textbook, notes, another email to Dr. Hales, and a few google searches, specifically to find write_json and while attempting to figure out the tibble section. While figuring out the tibble section, I tried many different variations of pathways and ordered until one finally worked based on the email. 
+
+I get an odd error message telling me that "distinct" cannot be found when rendering this to quarto. When trying to fix this I have made sure all my packages are downloaded and installed and on. Trying to remove certain parts of the code to find what the problem is has also not worked. It continues to stop at lines 253-269, where it will tell me that it can't find '%>%' or 'reds' or literally anything in that code chunk apparently.
+
+# Submit
+
+Submit both the qmd and the final json file.
