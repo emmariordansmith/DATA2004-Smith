@@ -39,7 +39,6 @@ Build the request, send it, and check the status.
 #| warning: false
 #| echo: false
 #| label: request
-#| eval: false
 
 library(tidyverse)
 library(httr2)
@@ -71,7 +70,6 @@ The first field in every response is `copyright`.
 #| warning: false
 #| echo: false
 #| label: fine print
-#| eval: false
 
 mlb_resp<-mlb_response%>%
   resp_body_json()
@@ -96,7 +94,6 @@ Save the raw response to `data/raw/reds_2026.json`. Then read it back in with `j
 #| warning: false
 #| echo: false
 #| label: saving raw response
-#| eval: false
 
 library(jsonlite)
 
@@ -130,7 +127,6 @@ Use `str()` the way we did in class: look at one date, then one game inside it.
 #| warning: false
 #| echo: false
 #| label: table
-#| eval: false
 
 names(mlb_reds)
 
@@ -138,7 +134,7 @@ names(mlb_reds)
 
 > Which parts are `[ ]` (lists of things, which become rows) and which are `{ }` (named things, which become columns)? Write the path from the top of the response down to the Reds' score in one game.
 
-The parts that are [] the rows, which are represented by the 162 individual dates. The {} are the things listed under dates/games, like gamePk and gameDate.
+The parts that are \[\] the rows, which are represented by the 162 individual dates. The {} are the things listed under dates/games, like gamePk and gameDate.
 
 The path from this response to the score of a reds game would be mlb_reds/dates/games/teams/home/score
 
@@ -159,7 +155,6 @@ Start from `tibble(day = sched$dates)`. In class, `features` was one list of ear
 #| warning: false
 #| echo: false
 #| label: tibble
-#| eval: false
 
 reds <- tibble(day=mlb_reds$dates)
 
@@ -219,7 +214,6 @@ Reds has 165 rows in it. totalGames says that the reds played 165 games.
 #| warning: false
 #| echo: false
 #| label: distinct
-#| eval: false
 
 reds%>%
   distinct(game_pk)%>%
@@ -256,7 +250,7 @@ These were games that were originally postponed, and so are double counted by th
 #| label: filtering join
 
 reds3<-reds |> 
-  distinct(game_pk,.keep_all=TRUE) 
+  dplyr::distinct(game_pk,.keep_all=TRUE) 
 
 doubles<-reds2|> 
   filter(game_pk==824490)
@@ -339,7 +333,6 @@ You do not get the same counts for weekdays when looking at official dates and g
 
 > **Optional:** Convert `game_date` to `America/New_York`. Does that make it agree with `official_date`? Would Eastern time be the right choice for a Reds game played in San Diego?
 
-
 ```{r}
 #|echo: false
 #|label: optional
@@ -359,7 +352,7 @@ reds2_test%>%
 
 ```
 
-This does make the dates line up with Official Date! Though, standardizing everything to one time zone does not necessarily correctly represent a game in San Diego. 
+This does make the dates line up with Official Date! Though, standardizing everything to one time zone does not necessarily correctly represent a game in San Diego.
 
 # Disclosure appendix
 
@@ -369,9 +362,9 @@ This does make the dates line up with Official Date! Though, standardizing every
 
 > If you didn't use one, say so.
 
-I did not use AI, I only used the textbook, notes, another email to Dr. Hales, and a few google searches, specifically to find write_json and while attempting to figure out the tibble section. While figuring out the tibble section, I tried many different variations of pathways and ordered until one finally worked based on the email. 
+I did not use AI, I only used the textbook, notes, another email to Dr. Hales, and a few google searches, specifically to find write_json and while attempting to figure out the tibble section. While figuring out the tibble section, I tried many different variations of pathways and ordered until one finally worked based on the email.
 
-I get an odd error message telling me that "distinct" cannot be found when rendering this to quarto. When trying to fix this I have made sure all my packages are downloaded and installed and on. Trying to remove certain parts of the code to find what the problem is has also not worked. It continues to stop at lines 253-269, where it will tell me that it can't find '%>%' or 'reds' or literally anything in that code chunk apparently.
+I get an odd error message telling me that "distinct" cannot be found when rendering this to quarto. When trying to fix this I have made sure all my packages are downloaded and installed and on. Trying to remove certain parts of the code to find what the problem is has also not worked. It continues to stop at lines 253-269, where it will tell me that it can't find '%\>%' or 'reds' or literally anything in that code chunk apparently.
 
 # Submit
 
