@@ -1,0 +1,38 @@
+---
+title: "Data Feasibility Report"
+author: "Emma Smith, Danielle Pruitt, Grayson Pham"
+format: html
+editor: visual
+---
+
+# Data Feasibility Report
+
+*This was collaborated on in a separate Google Doc by all three of us, and it is turned in by me on behalf of our group*
+
+### Danielle, 2010s
+
+To investigate musical preferences in the 2010’s, we have found a dataset from Kaggle titled “Top Hits Spotify from 2000-2019.” This dataset contains information on the top 2,000 songs on Spotify by year from 2000 to 2019. Since streaming music was not as popular in the 2000’s as CD’s, we will filter out just the data from the 2010 decade and use CD data for the 2000’s. One row appears to represent one song that was popular on Spotify and released from 2000 to 2019 in the original dataset. After the filtering, one row would represent one popular song from 2010 to 2019. One potential quality risk is that this data only represents Spotify listeners, so any conclusions drawn should only apply to the Spotify music platform. A fallback option could be the “All Station Plays” dataset from Rebrowser. This dataset is much larger than the top Spotify hits dataset and would likely be harder to obtain in a usable format.
+
+### Emma, 1980s-1990s Records and Casettes
+
+I had a lot of trouble finding data belonging to record or cassette tape sales which included information beyond the format of the media. While looking specifically for record album sales within this time period, I first found a dataset titled “Music Industry Sales (1973-2019).” This dataset, while not necessarily helpful for answering our initial question, may help with visualizing context around our question by providing insight into popularity trends of when certain types of media were most popular. Despite this difficulty, I was able to find a dataset called “1980s Billboard Top Hits” which included artist, year, and song, collected from a variety of genres. Though this does not include the format of sales like we intended, it may be the most usable data we have found. This could be a fallback, as radio plays and music charts could provide more consistently available data than sales.
+
+### Grayson, 1990s-2000s CDs
+
+While looking for data specifically on CD sales, there were a couple of datasets that I found, but they were all incomplete. I found a dataset from CDNOW that was the purchase history of CDs from the CDNOW website, but it did not include the name of the CD that was purchased, which makes it pretty much useless. One dataset that could be useful is called Music Sales Data, which is sales data for physical and digital music formats over 40 years, however, this dataset is very small and probably will not help very much. The most usable data would be Best Selling Albums By Duration (1990-2021), which has the top 10 selling albums for every year between those years, and I can just focus on 1995 to 2010 because most of those sales are CDs because other forms of music recording were mostly phased out by then.
+
+### Conclusion
+
+Because of the difficulty we have had finding applicable data for CDs, records, and cassette tapes with artist, album, or genre level data, it may be more feasible to either limit our scope to streaming. Alternatively, we could include more consideration of radio based data as an equivalent to streaming, rather than considering our data based on media format.
+
+### Links to our Datasets
+
+https://www.kaggle.com/datasets/paradisejoy/top-hits-spotify-from-20002019
+
+https://www.kaggle.com/datasets/thebumpkin/1980s-billboard-top-hits-with-lyrics-links/data
+
+https://www.nber.org/system/files/working_papers/w16507/w16507.pdf
+
+https://www.kaggle.com/datasets/thebumpkin/1980s-billboard-top-hits-with-lyrics-links/data
+
+https://www.kaggle.com/datasets/andrewmvd/music-sales

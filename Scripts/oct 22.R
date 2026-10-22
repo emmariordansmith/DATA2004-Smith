@@ -138,6 +138,8 @@ art<-art%>%
                    date_label=="1789-1789"~"1789",
                    TRUE~date_label))
 
+#date_start==date_end~date_start???
+
 # you know you can do most of what the director wants can be found in patterns. 
 
 # the director wants to have the pieces laid out thematically (even if those themes aren't very good)
