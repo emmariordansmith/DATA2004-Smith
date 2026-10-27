@@ -1,0 +1,441 @@
+---
+title: "Weekly 6 (Review): How Many People, and Where?"
+author: "Emma Smith"
+format:
+  html:
+    embed-resources: true
+editor: visual
+---
+
+## Overview
+
+This weekly is review. Nothing in it is new. It puts the last few weeks together on one dataset: requests, reading structure, unnesting and hoisting, strings and regex, and joins.
+
+The World Bank has a free API with data on every country in the world. You're going to answer a question that sounds simple:
+
+**Which countries had the most people in 2023, and how is the world's population split up by region and income?**
+
+On the way, you'll find out that "every country in the world" isn't quite what the World Bank sends you.
+
+A few things:
+
+1.  Add `#| echo: false` to your code blocks.
+2.  Use a new block when you move to a new task.
+3.  Code goes in the blocks. **Answers go outside them**, as prose. A comment inside a code chunk is not an answer.
+4.  Save each raw response to a file **once**, then work from the file. After it's saved, add `#| eval: false` to the block that sends the request.
+5.  Look at nested data one level at a time: `str(x, max.level = 1)`. Never print a whole response.
+
+Due \[date\] at 8pm.
+
+# Part 1: Ask
+
+## Read the documentation first
+
+The World Bank's documentation for building a request is here: <https://datahelpdesk.worldbank.org/knowledgebase/articles/898581-api-basic-call-structures>
+
+> What format does the API send back if you don't ask for one? How do you ask for JSON?
+
+The default is XML, not JSON or CSV. You ask for JSON by adding format=json to the url or the request.
+
+> How many results do you get per page if you don't say? How do you ask for more?
+
+If you do not specifiy the number, the default results will be 50 per page. You can ask for more by changing the number of results.
+
+## Make the request
+
+Population has the indicator code `SP.POP.TOTL`. The endpoint for one indicator, for every country, is:
+
+`https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL`
+
+Build a request with `httr2` for **2023 only**, in **JSON**. Don't set the number per page yet. Look at it with `req_dry_run()`, then send it.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: request
+
+library(tidyverse)
+library(httr2)
+
+worldbank<-request("https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL")%>%
+  req_url_query(format="json",
+                date="2023")
+
+req_dry_run(worldbank)
+
+req_perform(worldbank) #status: 200
+
+```
+
+> What status did you get?
+
+The status is 200. Successful.
+
+Now look at the first element of what came back.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: str
+
+str(worldbank,max.level=1)
+
+```
+
+> How many records exist in total? How many did you get? Is a 200 enough to know you got everything?
+
+No it is not, because it all says list of zero. I imagine we need more data to have anything to work with.
+
+## Get all of it, and save it
+
+Fix the request so you get every record in one response. Save it to `data/raw/wb_population_2023.json`, then read it back with `jsonlite::read_json()`.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: read it 
+
+worldbank<-request("https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL")%>%
+  req_url_query(format="json",
+                date=2023,
+                per_page=300)
+
+req_dry_run(worldbank)
+
+req_perform(worldbank,path="Data/Raw/wb_population_2023.json")
+
+```
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: read it in
+
+pop<-jsonlite::read_json("Data/Raw/wb_population_2023.json")
+
+```
+
+> Fill this in:
+>
+> - URL: https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL
+> - Date and time requested: 10/26 at 9:48 PM (I know its late)
+> - Status: 200, ok
+> - Records returned / records that exist: 266
+> - One default that would have caught you: The default 50 per page.
+
+# Part 2: Read the structure
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: structure
+
+str(pop,max.level=1)
+
+```
+
+> Look at the top level with `str(..., max.level = 1)`. How many parts are there? Do they have names? Is the top level a `{ }` or a `[ ]`? How do you know?
+
+The very top level is an array [] that contains two lists 1 & 2. 
+
+> Which part holds the pagination information, and which holds the data? How would you get to each one in R?
+
+List 1 contains pagination, with page, total, page_total, etc. List 2 holds the data, like indicator and country that will need to be unnested. You could get to them visually by looking at different levels or by unnesting them.
+
+Now look at **one** record, one level deep.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: one record deep
+
+str(pop,max.level=3)
+
+```
+
+> Which fields are single values? Which are `{ }` with their own parts inside? What's inside `country`?
+
+Indicator and country are {} things, which have lists that have their own parts. The single value fields are countryiso3code, date, value, unit, obs_status, and decimal. Inside country is id and value.
+
+# Part 3: Make it a table
+
+Create a tibble called `pop` with one row per record and these columns:
+
+- `iso3` (`countryiso3code`)
+- `country` (the country's name, inside `country`)
+- `year` (`date`)
+- `population` (`value`)
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: tibble!
+
+pop_tbl<-tibble(pop=pop[2])
+
+pop_tbl<-pop_tbl%>%
+  unnest_longer(pop)
+
+pop_tbl<-pop_tbl%>%
+  hoist(pop,
+        country=c("country","value"),
+        iso3=c("countryiso3code"),
+        year=c("date"),
+        population=c("value"))
+
+```
+
+> Did you use `unnest_wider()`, `hoist()`, or both? Why that choice?
+
+I used unnest_longer and hoist. Unnest longer separated out each country, and hoist separated out each column name.
+
+> How many rows? Does it match the total from Part 1? What is one row?
+
+266 rows. One row is one country's record.
+
+> Are any populations `NA`? Which places? What was the value in the raw JSON?
+
+```{r}
+#|warning: false
+#|echo: false
+#|label: NAs
+
+pop_tbl%>%
+  filter(is.na(population))
+
+```
+
+There is one NA population. Its country is "Not Classified." 
+
+> Is `population` a number? Is `year`? Should they be?
+
+Population is a number (double), but year is a character. Year should be a date. 
+
+# Part 4: Are these all countries?
+
+Look through the `country` column.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: country column
+
+pop_tbl$country
+
+pop_tbl%>%
+  filter(iso3=="")
+
+
+```
+
+> Name five rows that are not countries. What are they?
+
+Puerto Rico, Hong Kong, Heavily Indebted Poor Countries (HIPC), European Union, and Euro Area.
+
+These are not countries, but some are geographical regions or at the very least categories. The documentation states that country is interchangeable with economy, however. 
+
+> How many rows have an empty `iso3`? Are they `NA` or something else? How did you check?
+
+You can see that the list has multiple blanks. They are not NA, just nothing present. I checked by filtering for NA, then " ", then "". The third gave me my answer of 5 missing iso3 codes. 
+
+A classmate tries to remove the non-countries with a regex. Find every name that contains `"income"`, `"&"`, or `"and"`.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: names with ___
+
+remove_non<-pop_tbl%>%
+  filter(str_detect(country,("income|&|and")))
+
+#improved
+remove_non<-pop_tbl%>%
+  filter(str_detect(country,("income|&|^and$")))
+
+```
+
+> Did that catch every non-country? Did it catch any real countries by mistake? Name them.
+
+It did catch some real countries. Any country with "and" anywhere in the name is caught. There are ones it didn't catch though, like "Arab World" and "Early Demographic dividend."
+
+> Improve the pattern as much as you can. Can a pattern ever do this job reliably? Why or why not?
+
+In order to do this job reliably, the data would have to be consistent within its category. So in this case, because the label country is not necessarily accurate, it cannot be done reliably with a pattern because there are so many different names.
+
+# Part 5: Connect a second table
+
+The World Bank also has an endpoint that describes each place: `https://api.worldbank.org/v2/country`. Request **all** of them in JSON, save the response, and read it back.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: place desc.
+
+countries_req<-request("https://api.worldbank.org/v2/country")%>%
+  req_url_query(format="json",
+                per_page=296)
+
+req_dry_run(countries_req)
+
+req_perform(countries_req,path="Data/Raw/countriesdata.json")
+
+countries<-jsonlite::read_json("Data/Raw/countriesdata.json")
+
+```
+
+> How many places are in this table? Is that the same number as in `pop`? Why might they differ?
+
+Create a tibble called `places` with `iso3` (`id`), `region` (inside `region`), and `income` (inside `incomeLevel`).
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: tibble 2
+
+places_tbl<-tibble(countries=countries[2])
+
+places_tbl<-places_tbl%>%
+  unnest_longer(countries)
+
+places_tbl<-places_tbl%>%
+  hoist(countries,
+        iso3=c("id"),
+        region=c("region","value"),
+        income=c("incomeLevel","value"))
+
+```
+
+> Try to keep only the places in Latin America & Caribbean with `filter(region == "Latin America & Caribbean")`. How many rows do you get? Now look very closely at the text of each region name (hint: `str_length()`). What's going on, and how do you fix it?
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: filtering
+
+lma<-places_tbl%>%
+  filter(region=="Latin America & Caribbean")
+
+str_length(lma$region)
+
+```
+
+## Mutating join
+
+Add `region` and `income` to `pop`.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: joins!!!
+
+pop_joined<-pop_tbl%>%
+  left_join(places_tbl,join_by(iso3))
+
+pop_joined%>%
+  filter(is.na(region))
+
+```
+
+> Which key did you join on? Why not the country name, or the two-letter id inside `country`?
+
+I joined on iso3, because it is unique to each country or collective identified in "country", making it the primary key.
+
+> How many rows before and after the join? Should it change?
+
+Using a left join, there are 266 rows before and after. As left join retains non-matches, it should not change.
+
+> Which rows got `NA` for `region`? Why didn't they match?
+
+Income based rows got NA for region, as they do not have country codes iso3.
+
+## Filtering joins
+
+In `places`, the non-countries have `region` equal to `"Aggregates"`.
+
+Make a table of only the real countries in `pop`, using a filtering join. Then make a table of everything you threw out.
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: filter join
+
+places_tbl_non<-places_tbl%>%
+  filter(region!="Aggregates")
+
+real_countries<-pop_tbl%>%
+  semi_join(places_tbl_non,join_by(iso3))
+
+not_real<-pop_tbl%>%
+  anti_join(places_tbl_non,join_by(iso3))
+
+```
+
+> How many countries? How many places did you throw out? Does anything in the thrown-out list surprise you?
+
+There are 217 registering as real countries with an iso3, and 49 get thrown out. These are the income categories, as well as the "not classified" row. This does not surprise me. 
+
+> Compare this to your regex in Part 4. Which would you trust, and why?
+
+I would trust the semi_join more than pattern detection, because semi_join ensures that there is a match in the key, rather than trying to filter out by a naming convention that does not 100% indicate whether or not it is a country/economy.
+
+# Part 6: Answer the question
+
+```{r}
+#| warning: false
+#| echo: false
+#| label: populus
+
+real_countries%>%
+  arrange(desc(population))
+
+not_real%>%
+  filter(str_detect(country,"income$"))%>%
+  filter(country!="Low & middle income")%>%
+  ggplot(aes(x=country,y=population,fill=country))+
+  geom_col()+
+  theme(legend.position = "none")+
+  xlab("Country")+
+  ylab("Population")+
+  ggtitle("Population by Income Level")
+
+real_countries%>%
+  summarise(sum=sum(population))
+
+```
+
+> What were the five most populous countries in 2023?
+
+The five most populous real actual countries are India, China, United States, Indonesia, and Pakistan. 
+
+> What is the total population by region? By income level? Make one of these a plot.
+
+> The data includes a row called "World." Compare its population to the sum of your real countries. Are they the same? Why might they not be?
+
+The population listed in "world" is 8062923417. The sum of the populations of real countries is 8039550134. They are different, and it could be 
+
+> If you had **not** removed the aggregates, what would your regional totals have been? How wrong, and in which direction?
+
+Very wrong, because I did that first. There were 261 real countries and 5 unreal ones. It did not separate out all income categories or aggregates. The regional totals would have been 
+
+# Bringing it together
+
+A classmate's project uses World Bank data. They downloaded a table, summed a column, and wrote "the world's population is tens of billions of people."
+
+Write them a short note, roughly 200 words, that:
+
+- explains what probably went wrong
+- tells them how to check for it
+- tells them how to fix it, and why a join is safer than a pattern
+- names one default in the API that could have caught them
+
+Firstly, the biggest problem with summing the populations column would be that certain populations would be double-counted if they fell into multiple categories. The documentation mentioned that countries or regions that can also be considered economies are also represented. This also includes income groups in the calculation. They can check for this by filtering for non-existant iso3 codes, or for the word income, but that str_detect would not be perfect. A join would be safer than a pattern, because anything that doesn't match in an iso3 code would not be retained and therefore not included in the sum. That prevents the income levels from being included. A default in the API that could have caught them is the default 50 results per page, which would have also resulted in fewer observations.
+
+# Disclosure appendix
+
+> What did you try first? Include the code you wrote and the actual error message, or a clear description of the problem if there was no error.
+
+> If you used an AI system: the exact prompt, exactly what it returned, what it got wrong or left unclear, and what you changed.
+
+> If you didn't use one, say so.
+
+I did not use AI. I texted Danielle when I was struggling with the initial file read, and she gave me per_page. Everything else was from past notes and the textbook. Apologies for the late turn-in, it has been a long week and I still feel like I haven't done this correctly. Any feedback that you can provide on this is very welcome!
