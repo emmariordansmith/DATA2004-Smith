@@ -1,0 +1,31 @@
+name,id,venue,location,opened_year,capacity,Roof type
+Athletics,133,Sutter Health Park,Sacramento,2000,13416,Open
+Pittsburgh Pirates,134,PNC Park,Pittsburgh,2001,38747,Open
+San Diego Padres,135,Petco Park,San Diego,2004,39860,Open
+Seattle Mariners,136,T-Mobile Park,Seattle,1999,47929,Retractable
+San Francisco Giants,137,Oracle Park,San Francisco,2000,41331,Open
+St. Louis Cardinals,138,Busch Stadium,St. Louis,2006,44383,Open
+Tampa Bay Rays,139,Tropicana Field,St. Petersburg,1990,25000,Fixed
+Texas Rangers,140,Globe Life Field,Arlington,2020,40300,Retractable
+Toronto Blue Jays,141,Rogers Centre,Toronto,1989,39150,Retractable
+Minnesota Twins,142,Target Field,Minneapolis,2010,38544,Open
+Philadelphia Phillies,143,Citizens Bank Park,Philadelphia,2004,42901,Open
+Atlanta Braves,144,Truist Park,Atlanta,2017,41084,Open
+Chicago White Sox,145,Rate Field,Chicago,1991,40615,Open
+Miami Marlins,146,LoanDepot Park,Miami,2012,36742,Retractable
+New York Yankees,147,Yankee Stadium,Bronx,2009,46537,Open
+Milwaukee Brewers,158,American Family Field,Milwaukee,2001,41900,Retractable
+Los Angeles Angels,108,Angel Stadium,Anaheim,1966,45517,Open
+Arizona Diamondbacks,109,Chase Field,Phoenix,1998,48330,Retractable
+Baltimore Orioles,110,Oriole Park at Camden Yards,Baltimore,1992,42455,Open
+Boston Red Sox,111,Fenway Park,Boston,1912,37755,Open
+Chicago Cubs,112,Wrigley Field,Chicago,1914,41649,Open
+Cincinnati Reds,113,Great American Ball Park,Cincinnati,2003,43500,Open
+Cleveland Guardians,114,Progressive Field,Cleveland,1994,34820,Open
+Colorado Rockies,115,Coors Field,Denver,1995,46897,Open
+Detroit Tigers,116,Comerica Park,Detroit,2000,41083,Open
+Houston Astros,117,Daikin Park,Houston,2000,41168,Retractable
+Kansas City Royals,118,Kauffman Stadium,Kansas City,1973,37903,Open
+Los Angeles Dodgers,119,Dodger Stadium,Los Angeles,1962,56000,Open
+Washington Nationals,120,Nationals Park,Washington,2008,41373,Open
+New York Mets,121,Citi Field,Flushing,2009,41922,Open
