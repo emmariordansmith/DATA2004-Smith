@@ -1,0 +1,201 @@
+---
+title: "Data Acquisition Quarto"
+author: "Danielle Pruitt, Emma Smith, Grayson Pham"
+format: html
+editor: visual
+---
+
+# Data Acquisition Report
+
+## Report
+
+The acquisition method that our group used was web scraping. We scraped the top 100 song data every 5 years from 1980-2020. We scraped from Wikipedia's Lists of Billboard Year-End Hot 100 Singles page for each of the years. (https://en.wikipedia.org/wiki/Category:Lists_of_Billboard_Year-End_Hot_100_singles) We used the tidyverse, httr2, and rvest R packages in order to do this. We used three different user agents in order to make these requests (one for each member of our group). We are allowed to scrape this data since we aren’t banned from it, and we are citing Wikipedia as the source of our data.
+
+Every five years beginning with 1980: https://en.wikipedia.org/wiki/Category:Lists_of_Billboard_Year-End_Hot_100_singles
+
+## Acquisition Code
+
+```{r}
+#|warning: false
+#|echo: false
+#|label: 1980-1995, Emma
+
+library(tidyverse)
+library(httr2)
+library(rvest)
+
+#1980s
+url_1980<-"https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_1980"
+
+request(url_1980)%>%
+  req_user_agent("Emma Smith, Data 2004 Class, Transylvania University")%>%
+  req_perform(path="Data/Raw/music_1980.html")
+
+#pulled 11/5/2026 at 11 AM
+
+music_1980<-read_html("Data/Raw/music_1980.html")
+
+table_1980<-music_1980%>%
+  html_elements("table.wikitable")%>%
+  html_table()
+  
+table_1980<-table_1980[[1]]
+
+#1985
+
+url_1985<-"https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_1985"
+
+request(url_1985)%>%
+  req_user_agent("Emma Smith, Data 2004 Class, Transylvania University")%>%
+  req_perform(path="Data/Raw/music_1985.html")
+
+#pulled 11/6/26 at 11:26 PM
+
+music_1985<-read_html("Data/Raw/music_1985.html")
+
+table_1985<-music_1985%>%
+  html_elements("table.wikitable")%>%
+  html_table()
+
+table_1985<-table_1985[[1]]
+
+#1990
+
+url_1990<-"https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_1990"
+
+request(url_1990)%>%
+  req_user_agent("Emma Smith, Data 2004 Class, Transylvania University")%>%
+  req_perform(path="Data/Raw/music_1990.html")
+
+#pulled 11/6/26 at 11:27 PM
+
+music_1990<-read_html("Data/Raw/music_1990.html")
+
+table_1990<-music_1990%>%
+  html_elements("table.wikitable")%>%
+  html_table()
+
+table_1990<-table_1990[[1]]
+
+```
+
+```{r}
+#|warning: false
+#|echo: false
+#|label: 1995-2005, Grayson
+
+two_thousands_url <- "https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_2000"
+
+
+request(two_thousands_url) |> 
+  req_user_agent("Grayson Pham, DATA 2004 class, Translyvania University") |> 
+  req_perform(path = "Data/Raw/2000_songs.html")
+
+
+# Requested 11/06/2026 at 3:15 pm.
+
+two_thousands_page <- read_html("Data/Raw/2000_songs.html")
+
+
+two_thousands_tables <- two_thousands_page |> 
+  html_elements("table.wikitable") |> 
+  html_table()
+
+
+two_thousands_tables[[1]]
+two_thousands_raw <- two_thousands_tables[[1]]
+
+
+two_thousand_five_url <- "https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_2005"
+
+request(two_thousand_five_url) |> 
+  req_user_agent("Grayson Pham, DATA 2004 class, Translyvania University") |> 
+  req_perform(path = "Data/Raw/2005_songs.html")
+
+# Requested 11/06/2026 at 3:20 pm.
+
+two_thousand_five_page <- read_html("Data/Raw/2005_songs.html")
+
+two_thousand_five_tables <- two_thousand_five_page |> 
+  html_elements("table.wikitable") |> 
+  html_table()
+
+two_thousand_five_tables[[1]]
+two_thousand_five_raw <- two_thousand_five_tables[[1]]
+
+
+
+nineteen_ninety_five_url <- "https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_1995"
+
+request(nineteen_ninety_five_url) |> 
+  req_user_agent("Grayson Pham, DATA 2004 class, Translyvania University") |> 
+  req_perform(path = "Data/Raw/1995_songs.html")
+
+# Requested 11/06/2026 at 7:53 pm.
+
+nineteen_ninety_five_page  <- read_html("Data/Raw/1995_songs.html")
+
+nineteen_ninety_five_tables <- nineteen_ninety_five_page |> 
+  html_elements("table.wikitable") |> 
+  html_table()
+
+nineteen_ninety_five_tables[[1]]
+nineteen_ninety_five_raw <- nineteen_ninety_five_tables[[1]]
+
+
+```
+
+
+```{r}
+#|warning: false
+#|echo: false
+#|label: 2010-2015, Danielle
+
+#Load the necessary libraries.
+
+two_thousand_ten_url <- "https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_2010"
+#Save the url for the 2010s page for easy requesting.
+
+request(two_thousand_ten_url) |> 
+  req_user_agent("Danielle Pruitt, DATA 2004 class, Translyvania University") |> 
+  req_perform(path = "Data/Raw/2010_songs.html")
+#Replace req_user_agent argument for whoever is requesting the data. And also change the path if necessary.
+
+# Requested 11/03/2026 at 8:50pm.
+
+two_thousand_ten_page <- read_html("Data/Raw/2010_songs.html")
+
+
+two_thousand_ten_tables <- two_thousand_ten_page |> 
+  html_elements("table.wikitable") |> 
+  html_table()
+
+length(two_thousand_ten_tables)
+
+two_thousand_ten_tables[[1]]
+two_thousand_ten_raw <- two_thousand_ten_tables[[1]]
+View(two_thousand_ten_raw)
+#Repeat the same process for the 2015 data.
+
+two_thousand_fifteen_url <- "https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_2015"
+
+request(two_thousand_fifteen_url) |> 
+  req_user_agent("Danielle Pruitt, DATA 2004 class, Translyvania University") |> 
+  req_perform(path ="Data/Raw/2015_songs.html")
+
+# Requested 11/04/2026 at 5:50pm.
+
+two_thousand_fifteen_page <- read_html("Data/Raw/2015_songs.html")
+
+two_thousand_fifteen_tables <- two_thousand_fifteen_page |> 
+  html_elements("table.wikitable") |> 
+  html_table()
+
+length(two_thousand_fifteen_tables)
+
+two_thousand_fifteen_tables[[1]]
+two_thousand_fifteen_raw <- two_thousand_fifteen_tables[[1]]
+View(two_thousand_fifteen_raw)
+
+
+```
