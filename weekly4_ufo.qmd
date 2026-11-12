@@ -274,8 +274,8 @@ ufo%>%
   arrange(desc(n))
 
 ```
-The most common ones listed are 5 minutes, 2 minutes, and 10 minutes.
 
+The most common ones listed are 5 minutes, 2 minutes, and 10 minutes.
 
 Create a new column, `duration_clean`, that standardizes case and whitespace. Keep the original.
 
@@ -373,7 +373,7 @@ They would only agree if someone took the time to put everything into the same u
 
 > Did you just validate your rule, or rediscover someone else's? What does that tell you about where `encounter_length` came from?
 
-encounter_length must have come from another attempt at regular expression, converting percieved time into seconds. I do not think I validated my rule, because not all values matched up. 
+encounter_length must have come from another attempt at regular expression, converting percieved time into seconds. I do not think I validated my rule, because not all values matched up.
 
 ## Seconds, too
 
@@ -446,11 +446,11 @@ There is a consistent rule connecting the text to encounter_length. The encounte
 
 ```
 
-10.84% of all reports contain a range. 
+10.84% of all reports contain a range.
 
 > If you computed a median sighting length from `encounter_length`, in which direction would it be wrong, and why?
 
-The median sighting length would be incorrectly higher than it actually is, because encounter_length takes the higher reported number of the range to calculate seconds from. 
+The median sighting length would be incorrectly higher than it actually is, because encounter_length takes the higher reported number of the range to calculate seconds from.
 
 ## The longest sighting
 
@@ -489,12 +489,11 @@ Write a short answer, roughly 200 words, that:
 - says what this data is actually measuring
 - tells them the one or two things they'd need to know before trusting your numbers
 
-This UFO dataset records individual UFO sightings, along with their description, described encounter length, and the date and time in which they were reported to have taken place. This data is actually measuring when during the day, week, and year people tend to *think* they have seen a UFO or had an encounter. The variable encounter_length was calculated by taking the highest number reported in each observation and converting it into seconds. 
+This UFO dataset records individual UFO sightings, along with their description, described encounter length, and the date and time in which they were reported to have taken place. This data is actually measuring when during the day, week, and year people tend to *think* they have seen a UFO or had an encounter. The variable encounter_length was calculated by taking the highest number reported in each observation and converting it into seconds.
 
 According to the data, people tend to see UFOs most often in the summer months of the year, June, July, and August, which have the highest count of reported sightings. The winter months have fewest sightings. People also tend to report seeing them most on weekends, with Saturday tending to have the highest number of reports. The time of day which is most commonly reported is during darkness/nighttime, between about 7 PM and 2 AM, peaking at 9 PM.
 
 Based on the reported encounter lengths, sightings last, on average, 9,017 seconds, or about 150 minutes. The median encounter length, however, is 180 seconds, or 3 minutes. That is because this average includes a few encounters that reportedly lasted between 21 and 31 years. Excluding those three values, the average encounter length is 5943 seconds, or 99 minutes, and the median is still the same. This indicates that the most common reported time is around 3 minutes, but that the range of times reported is incredibly variable.
-
 
 # Disclosure appendix
 

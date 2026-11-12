@@ -136,7 +136,7 @@ str(pop,max.level=1)
 
 > Look at the top level with `str(..., max.level = 1)`. How many parts are there? Do they have names? Is the top level a `{ }` or a `[ ]`? How do you know?
 
-The very top level is an array [] that contains two lists 1 & 2. 
+The very top level is an array \[\] that contains two lists 1 & 2.
 
 > Which part holds the pagination information, and which holds the data? How would you get to each one in R?
 
@@ -205,11 +205,11 @@ pop_tbl%>%
 
 ```
 
-There is one NA population. Its country is "Not Classified." 
+There is one NA population. Its country is "Not Classified."
 
 > Is `population` a number? Is `year`? Should they be?
 
-Population is a number (double), but year is a character. Year should be a date. 
+Population is a number (double), but year is a character. Year should be a date.
 
 # Part 4: Are these all countries?
 
@@ -232,11 +232,11 @@ pop_tbl%>%
 
 Puerto Rico, Hong Kong, Heavily Indebted Poor Countries (HIPC), European Union, and Euro Area.
 
-These are not countries, but some are geographical regions or at the very least categories. The documentation states that country is interchangeable with economy, however. 
+These are not countries, but some are geographical regions or at the very least categories. The documentation states that country is interchangeable with economy, however.
 
 > How many rows have an empty `iso3`? Are they `NA` or something else? How did you check?
 
-You can see that the list has multiple blanks. They are not NA, just nothing present. I checked by filtering for NA, then " ", then "". The third gave me my answer of 5 missing iso3 codes. 
+You can see that the list has multiple blanks. They are not NA, just nothing present. I checked by filtering for NA, then " ", then "". The third gave me my answer of 5 missing iso3 codes.
 
 A classmate tries to remove the non-countries with a regex. Find every name that contains `"income"`, `"&"`, or `"and"`.
 
@@ -372,7 +372,7 @@ not_real<-pop_tbl%>%
 
 > How many countries? How many places did you throw out? Does anything in the thrown-out list surprise you?
 
-There are 217 registering as real countries with an iso3, and 49 get thrown out. These are the income categories, as well as the "not classified" row. This does not surprise me. 
+There are 217 registering as real countries with an iso3, and 49 get thrown out. These are the income categories, as well as the "not classified" row. This does not surprise me.
 
 > Compare this to your regex in Part 4. Which would you trust, and why?
 
@@ -405,17 +405,17 @@ real_countries%>%
 
 > What were the five most populous countries in 2023?
 
-The five most populous real actual countries are India, China, United States, Indonesia, and Pakistan. 
+The five most populous real actual countries are India, China, United States, Indonesia, and Pakistan.
 
 > What is the total population by region? By income level? Make one of these a plot.
 
 > The data includes a row called "World." Compare its population to the sum of your real countries. Are they the same? Why might they not be?
 
-The population listed in "world" is 8062923417. The sum of the populations of real countries is 8039550134. They are different, and it could be 
+The population listed in "world" is 8062923417. The sum of the populations of real countries is 8039550134. They are different, and it could be
 
 > If you had **not** removed the aggregates, what would your regional totals have been? How wrong, and in which direction?
 
-Very wrong, because I did that first. There were 261 real countries and 5 unreal ones. It did not separate out all income categories or aggregates. The regional totals would have been 
+Very wrong, because I did that first. There were 261 real countries and 5 unreal ones. It did not separate out all income categories or aggregates. The regional totals would have been
 
 # Bringing it together
 
