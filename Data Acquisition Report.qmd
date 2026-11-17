@@ -145,7 +145,6 @@ nineteen_ninety_five_raw <- nineteen_ninety_five_tables[[1]]
 
 ```
 
-
 ```{r}
 #|warning: false
 #|echo: false

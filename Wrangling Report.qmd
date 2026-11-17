@@ -1,0 +1,198 @@
+---
+title: "Wrangling"
+author: "Danielle, Emma, Grayson"
+format: html
+editor: visual
+---
+
+## Wrangling Our Data
+
+This document was complied from a shared google document.
+
+### Danielle, 2010 and 2015
+
+Genre data from 2010 and 2015 in a separate dataset was joined to the tables derived from wikipedia. The final list of genres in this time were pop, rock, hip-hop, and country.
+
+```{r}
+#|echo: false
+#|warning: false
+#|label: Danielle, 2010 & 2015
+
+library(tidyverse)
+library(httr2)
+library(rvest)
+
+songs_with_genres_2010s <- read.csv("data/raw/songs_normalize.csv")
+
+two_thousand_ten_songs <- read_html("data/raw/2010_songs.html")
+two_thousand_ten_tables <- two_thousand_ten_songs |> 
+  html_elements("table.wikitable") |> 
+  html_table()
+
+length(two_thousand_ten_tables)
+
+two_thousand_ten_tables[[1]]
+two_thousand_ten_raw <- two_thousand_ten_tables[[1]]
+View(two_thousand_ten_raw)
+
+genres_2010 <- songs_with_genres_2010s |>
+  filter(year == 2010) |>
+  select(song, genre)
+
+two_thousand_ten_cleaned <- two_thousand_ten_raw |>
+  mutate(songs_normalized = str_remove_all(Title, '"'))
+
+genres_clean_2010 <- genres_2010 |>
+  mutate(songs_normalized = song)
+
+two_thousand_ten_songs_with_genres <- two_thousand_ten_cleaned |>
+  left_join(genres_clean_2010, join_by(songs_normalized)) |>
+  filter(!is.na(genre)) |>
+  distinct(songs_normalized, .keep_all = TRUE) |>
+  mutate(genre = str_extract(genre, "^[^,]+"))
+
+two_thousand_fifteen_songs <- read_html("data/raw/2015_songs.html")
+two_thousand_fifteen_tables <- two_thousand_fifteen_songs |> 
+  html_elements("table.wikitable") |> 
+  html_table()
+
+length(two_thousand_fifteen_tables)
+
+two_thousand_fifteen_tables[[1]]
+two_thousand_fifteen_raw <- two_thousand_fifteen_tables[[1]]
+View(two_thousand_fifteen_raw)
+
+genres_2015 <- songs_with_genres_2010s |>
+  filter(year == 2015) |>
+  select(song, genre)
+
+two_thousand_fifteen_cleaned <- two_thousand_fifteen_raw |>
+  mutate(songs_normalized = str_remove_all(Title, '"'))
+
+genres_clean_2015 <- genres_2015 |>
+  mutate(songs_normalized = song)
+
+two_thousand_fifteen_songs_with_genres <- two_thousand_fifteen_cleaned |>
+  left_join(genres_clean_2015, join_by(songs_normalized)) |>
+  filter(!is.na(genre)) |>
+  distinct(songs_normalized, .keep_all = TRUE) |>
+  mutate(genre = str_extract(genre, "^[^,]+"))
+  
+ #The final genre labels I used are: pop, rock, hip hop, and country.
+
+```
+
+### Grayson, 1995, 2000, 2005
+
+Genre data was pulled from wikipedia pages from songs, using the first genre listed. If no genre was listed, the genre was derived from the album the song appears on.
+
+```{r}
+#|echo: false
+#|warning: false
+#|label: Grayson, 1995, 2000, 2005
+
+song_genre_1995<-read_csv("Data/Raw/1995_songs_with_genres.csv")
+
+song_genre_2000<-read_csv("Data/Raw/2000_songs_with_genres.csv")
+
+song_genre_2005<-read_csv("Data/Raw/2005_songs_with_genres.csv")
+
+```
+
+### Emma, 1980, 1985, 1990
+
+Genre data was pulled by hand from wikipedia pages for songs, using the first genre listed. If no genre was listed, the genre was derived from the album the song appears on. The genres found were:
+
+1.  Rock- contains all sub genres, hard rock, soft rock, prog rock, art rock, glam rock, yacht rock, heartland rock, etc.
+2.  Pop-contains all sub genres art-pop, synth-pop, new-wave, electropop, etc.
+3.  Soul
+4.  Disco-contains post-disco
+5.  R&B
+6.  Funk
+7.  Jazz
+8.  Country
+9.  Dance-contains House
+10. Hip-Hop
+
+Sub-genres of music, rock and pop especially, were combined into one category because of the variety of sub-genres available. If they had been divided into each individual type of rock or pop, we may not be able to visualize trends when presenting our data later.
+
+```{r}
+#|echo: false
+#|warning: false
+#|label: Emma, 1980, 1985, 1990
+
+#1980s
+
+music_1980<-read_html("Data/Raw/music_1980.html")
+
+table_1980<-music_1980%>%
+  html_elements("table.wikitable")%>%
+  html_table()
+
+raw_1980<-table_1980[[1]]
+
+raw_1980<-raw_1980%>%
+  mutate(year=1980)
+
+genres_1980<-read_csv("Data/Raw/DataProject - 1980 (1).csv")
+
+raw_1980<-raw_1980%>%
+  mutate(Title=str_remove_all(Title, '"'))
+
+combined_1980<-raw_1980%>%
+  left_join(genres_1980,join_by(Title))
+
+combined_1980%>%
+  filter(is.na(Genre))
+
+#1985
+
+music_1985<-read_html("Data/Raw/music_1985.html")
+
+table_1985<-music_1985%>%
+  html_elements("table.wikitable")%>%
+  html_table()
+
+raw_1985<-table_1985[[1]]
+
+raw_1985<-raw_1985%>%
+  mutate(year=1985)
+
+raw_1985<-raw_1985%>%
+  mutate(Title=str_remove_all(Title, '"'))
+
+genres_1985<-read_csv("Data/Raw/DataProject - 1985 (1).csv")
+
+combined_1985<-raw_1985%>%
+  left_join(genres_1985,join_by(Title))
+
+combined_1985%>%
+  filter(is.na(Genre))
+
+#1990
+music_1990<-read_html("Data/Raw/music_1990.html")
+
+table_1990<-music_1990%>%
+  html_elements("table.wikitable")%>%
+  html_table()
+
+raw_1990<-table_1990[[1]]
+
+raw_1990<-raw_1990%>%
+  mutate(year=1990)
+
+raw_1990<-raw_1990%>%
+  mutate(Title=str_remove_all(Title, '"'))
+
+genres_1990<-read_csv("Data/Raw/DataProject - 1990.csv")
+
+combined_1990<-raw_1990%>%
+  left_join(genres_1990,join_by(Title))
+
+combined_1990%>%
+  filter(is.na(Genre))
+
+combined_1990<-combined_1990%>%
+  distinct(No.,.keep_all=TRUE)
+
+```
