@@ -1,0 +1,265 @@
+---
+title: "Weekly 8: A Report for Coach Getsee"
+author: "Emma Smith"
+format:
+  html:
+    embed-resources: true
+editor: visual
+---
+
+## Overview
+
+Coach Getsee asked us what his pitchers' stuff looks like, specifically their **movement profiles** and their **release profiles**. In class we built a movement profile for Nathan Hale. This week you'll build a short report for one other pitcher.
+
+Your pitcher: **Liam Morris-Phelps**
+
+The report has two figures:
+
+1.  his **movement profile** (what we did in class)
+2.  his **release geometry**: where the ball leaves his hand
+
+and a short note telling coach what to look at.
+
+A few things:
+
+1.  Add `#| echo: false` to your code blocks. Coach should see charts and words, not code.
+2.  Use a new block when you move to a new task.
+3.  Code goes in the blocks. **Answers go outside them**, as prose.
+4.  Every chart uses a colorblind-safe palette, and each pitch type is **the same color in both figures**.
+
+Due Thursday, November 19 at 8pm.
+
+# Part 1: Get to know your pitcher
+
+This part is for you. It won't go in the report, but you can't build the report without it.
+
+```{r}
+#| echo: false
+#| warning: false
+
+library(tidyverse)
+
+trackman <- read_csv("Data/Raw/trackman_fall_2026.csv")
+```
+
+We're using the same colors for every pitcher, so that a slider is the same color in every report coach gets. Run this as is. If your pitcher throws a pitch type that isn't here, add it.
+
+```{r}
+#| echo: false
+#| warning: false
+
+okabe_ito <- unname(palette.colors(palette = "Okabe-Ito")[2:8])
+
+pitch_colors <- c(
+  "Fastball" = okabe_ito[2],
+  "FourSeamFastBall" = okabe_ito[2],
+  "Sinker" = okabe_ito[4],
+  "ChangeUp" = okabe_ito[5],
+  "Splitter" = okabe_ito[2],
+  "Slider" = okabe_ito[3],
+  "Sweeper" = okabe_ito[6],
+  "Curveball" = okabe_ito[7],
+  "Cutter" = "black",
+  "Undefined" = "gray50"
+)
+
+
+```
+
+> Filter to your pitcher. How many pitches does he have, and over how many days? Which hand does he throw with?
+
+Liam Morris-Phelps pitches with his left hand. He has a total of 181 pitches tracked across six dates.
+
+```{r}
+#| echo: false
+#| label: filter morris
+
+morris_phelps<-trackman%>%
+  filter(Pitcher=="Morris-Phelps, Liam")
+
+nrow(morris_phelps)
+
+morris_phelps%>%
+  distinct(Date)%>%
+  count()
+
+```
+
+> Compare `TaggedPitchType` and `AutoPitchType` for your pitcher. Which column will you use, and why?
+
+You will use Tagged Pitch Type, because the trackman system is not calibrated for D3 baseball, and so AutoPitchType is more likely inaccurate.
+
+```{r}
+#| echo: false
+#| label: comparison
+
+morris_phelps%>%
+  count(TaggedPitchType,AutoPitchType)
+
+morris_phelps%>%
+  count(TaggedPitchType)
+
+
+```
+
+> Which pitch types does he throw often enough to say something about? What will you do with the rest?
+
+Morris-Phelps most often throws Fastballs (84) and Sliders (68), and Curveballs (18). However, Curveballs are not comparable in number to the first two. There are also six ChangeUps and five undefined, nether of which are common comparatively, so you can filter them out.
+
+**If your pitcher throws left-handed:** horizontal break is backwards for him compared to Hale To fix it, flip the sign of HorzBreak when you filter to your pitcher so that positive means "arm side" for every pitcher. To do this you would include `mutate(HorzBreak = -HorzBreak`. This is only necessary if your pitcher is left handed.
+
+```{r}
+#|echo: false
+#|label: left handed
+
+
+mp_threepitch<-morris_phelps%>%
+  filter(TaggedPitchType%in%c("Fastball","Slider","Curveball"))
+
+mp_twopitch<-morris_phelps%>%
+  filter(TaggedPitchType%in%c("Fastball","Slider"))
+
+
+mp_twopitch<-mp_twopitch%>%
+  mutate(HorzBreak=-HorzBreak)
+
+mp_threepitch<-mp_threepitch%>%
+  mutate(HorzBreak=-HorzBreak)
+
+```
+
+# Part 2: The report
+
+Everything in this part goes to coach.
+
+## His movement profile
+
+> Make a movement profile for your pitcher that coach can read without you in the room. Use what we did in class: labels instead of a legend, how many pitches are behind each label, the raw pitches in the background, and a title that tells coach what to see.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: two pitch movement profile
+
+mp2_centers<-mp_twopitch%>%
+  group_by(TaggedPitchType)%>%
+  summarise(n=n(),
+            RelSpeed=mean(RelSpeed), 
+        HorzBreak=mean(HorzBreak),
+         InducedVertBreak=mean(InducedVertBreak))%>%
+  mutate(label = str_c(TaggedPitchType, " (n = ", n, ")"))
+
+mp_twopitch%>%
+  filter(TaggedPitchType=="Slider")%>%
+  summarise(mean_hz=mean(HorzBreak), #-17.286
+            mean_vb=mean(InducedVertBreak),#-7.292
+            minhz=min(HorzBreak), #from -23.2 to -10
+            maxhz=max(HorzBreak),
+            minvb=min(InducedVertBreak), #from -11.9 to -0.93
+            maxvb=max(InducedVertBreak))
+
+mp_twopitch%>%
+  filter(TaggedPitchType=="Fastball")%>%
+  summarise(mean_hz=mean(HorzBreak), #5.567
+            mean_vb=mean(InducedVertBreak), #15.157
+            minhz=min(HorzBreak), #from -1.73 to 18.86
+            maxhz=max(HorzBreak),
+            minvb=min(InducedVertBreak), #from 2.48 to 20.6
+            maxvb=max(InducedVertBreak))
+
+mp_twopitch%>%
+  ggplot(aes(x=HorzBreak,y=InducedVertBreak,
+             color=TaggedPitchType))+
+  geom_point(size=2,alpha=0.5)+
+  labs(title="Fig. 1: Morris-Phelps Movement Profile",
+       subtitle="Two distinct pitches. 
+       Fastballs average 5.5 HB and 15.1 IVB, 
+       while Sliders average -17.1 HB and -7.2 IVB",
+       x="Horizontal Break (inches)",y="Induced Vertical Break (inches)",
+       caption="Data collected from Trackman, visualized from TaggedPitchType, 9/10-10/18")+
+  scale_color_manual(values=pitch_colors)+
+  geom_hline(yintercept=0,linetype="dashed")+
+  geom_vline(xintercept=0,linetype="dashed")+
+  theme_minimal()+
+  theme(legend.position="none")+
+  geom_label(data=mp2_centers,aes(label=label),color="black",alpha=0.25)+
+  coord_equal()
+
+```
+
+## His release geometry
+
+`RelSide` and `RelHeight` are where the ball leaves his hand, in feet: side to side, and how high. (Check the glossary for where 0 is.) Coaches care about this because if one pitch comes out of a different spot than the others, a hitter can pick it up early.
+
+> Make a figure that answers: **does every pitch come out of the same place?** The design is up to you. A few things to think about:
+>
+> - Both axes are in feet. What did Wilke say about that?
+> - The differences here might be small. Is a foot the right unit for coach?
+> - Does coach need every pitch, the average for each pitch type, or both?
+> - Each pitch type has to be the same color it was in your movement profile.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: release profile
+
+two_mean<-mp_twopitch%>%
+  group_by(TaggedPitchType)%>%
+  summarise(meanside=mean(RelSide),
+            meanheight=mean(RelHeight),
+            minside=min(RelSide),
+            maxside=max(RelSide),
+            minheight=min(RelHeight),
+            maxheight=max(RelHeight))
+
+mp_twopitch%>%
+  ggplot(aes(x=RelSide,y=RelHeight,color=TaggedPitchType))+
+  geom_point(size=2,alpha=0.5)+
+  labs(x="Release Side",y="Release Height",title="Fig. 2: Morris-Phelps' Release Profile",subtitle="Release characteristics for Slider & Fastball overlap by about 0.3, 
+       but still show distinct differences",caption="Data collected from Trackman, visualized from TaggedPitchType, 9/10-10/18")+
+  scale_color_manual(values=pitch_colors)+
+  geom_hline(yintercept=5.94,linetype="dashed")+
+  geom_vline(xintercept=-2.16,linetype="dashed")+
+  theme_minimal()+
+  theme(legend.position="none")+
+  coord_equal()+
+  annotate("segment",x=-1.7,xend=-0.8,y=5.4,yend=5.4,color=okabe_ito[2])+
+  annotate("segment",x=-1.7,xend=-1.7,y=5.45,yend=5.35,color=okabe_ito[2])+
+  annotate("segment",x=-0.8,xend=-0.8,y=5.45,yend=5.35,color=okabe_ito[2])+
+  annotate("text", x = -1.36, y = 5.45, label = "Fastball", hjust = 0)+
+  annotate("segment",x=-2.29,xend=-1.45,y=5.3,yend=5.3,color=okabe_ito[3])+
+  annotate("segment",x=-2.29,xend=-2.29,y=5.35,yend=5.25,color=okabe_ito[3])+
+  annotate("segment",x=-1.45,xend=-1.45,y=5.35,yend=5.25,color=okabe_ito[3])+
+  annotate("text", x = -2, y = 5.35, label = "Slider", hjust = 0)+
+  expand_limits(y=5.2)
+
+
+```
+
+## A note for coach
+
+> In **150 words or fewer**, tell coach what to look at in each figure and what it means for this pitcher. Include one thing he should be careful about (for example, how many pitches something is based on, or which pitch type column you used).
+
+Liam Morris-Phelps has two very distinct pitch types that he most commonly throws: Fastballs (84 counted) and Sliders (68 counted). His movement profile for these two pitches does not overlap at all in Horizontal Break or Induced Vertical Break, with fastballs tending to land in the top right and sliders in the bottom left of the range. In his release profile, Sliders and Fastballs overlap by about 0.3 horizontally and by about 0.2 vertically, but largely remain distinct from each other. These visualizations were created from TaggedPitchType rather than AutoPitchType, and so if there is any human error, it would be conveyed in the visualizations. In addition, these graphs only plot his two most common pitch types, and exclude Curveballs (18) and Changeups (5).
+
+# Part 3: Behind the report
+
+This part is for me, not coach.
+
+> Was there anything in the data you weren't sure about for your pitcher? What did you do about it?
+
+I was struggling with whether or not to include Curveballs. On one hand there were more of them than Changeups, but not nearly as many as Sliders or Fastballs. When they started to complicate my labelling, I made my decision to just focus on Sliders and Fastballs. I have the code for the plot with Curveballs included inside my Nov. 12 class notes though just in case you want to/need to see it, because I was playing around with labels to try to make it work (it's so ugly).
+
+# Disclosure appendix
+
+> What did you try first? Include the code you wrote and the actual error message, or a clear description of the problem if there was no error.
+
+> If you used an AI system: the exact prompt, exactly what it returned, what it got wrong or left unclear, and what you changed.
+
+> If you didn't use one, say so.
+
+I did not use AI. I used only notes from class for this weekly.
+
+# Before you submit
+
+Render in a clean session: restart R, then render. Read your report as if you were coach: does every chart make sense without anything from class? Commit and push the `.qmd` and the `.html`.

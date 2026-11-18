@@ -308,3 +308,27 @@ hale%>%
   annotate("segment",x=20.5,xend=22.5,y=11.76,yend=11.76)+
   annotate("text", x = 22, y = 8.8, label = "6in", hjust = 0)+
   expand_limits(x = 25)
+
+mp3_centers<-mp_threepitch%>%
+  group_by(TaggedPitchType)%>%
+  summarise(n=n(),
+            RelSpeed=mean(RelSpeed), 
+            HorzBreak=mean(HorzBreak),
+            InducedVertBreak=mean(InducedVertBreak))%>%
+  mutate(label = str_c(TaggedPitchType, " (n = ", n, ")"))
+
+mp_threepitch%>%
+  filter(TaggedPitchType=="Slider"|TaggedPitchType=="Curveball")%>%
+  ggplot(aes(x=HorzBreak,y=InducedVertBreak,
+             color=TaggedPitchType))+
+  geom_point(size=2,alpha=0.75)+
+  labs(title="Fig. 2: Fastballs, Sliders, & Curveballs",
+       subtitle="",
+       x="Horizontal Break (inches)",y="Induced Vertical Break (inches)",
+       caption="Data collected from Trackman, visualized from TaggedPitchType, 9/10-10/18")+
+  scale_color_manual(values=pitch_colors,name="Pitch Type")+
+  geom_hline(yintercept=0,linetype="dashed")+
+  geom_vline(xintercept=0,linetype="dashed")+
+  theme_minimal()+
+  coord_equal()
+
