@@ -1,0 +1,363 @@
+---
+title: "Data Report First Draft"
+author: "Danielle, Emma, Grayson"
+format: html
+editor: visual
+---
+
+# Music Genre Preferences Change Over Time
+
+*Danielle Pruitt, Emma Smith, Grayson Pham*
+
+### Introduction
+
+The goal of our project is to determine whether or not popular preference for certain genres has changed over time. We were curious how genre popularity shifted specifically between the 1980s and present day, and we assumed there would be a shift in genre preference at least every decade. Though we first intended to examine sale data for records, cassettes, cds, and then streaming, a lack of available data led us to instead utilize lists of Billboard Hot 100 songs to answer our question. By taking songs and their genre from each year, counting, and examining the change we created our visualizations and analysis to determine music popularity trends over time. 
+
+
+### Data Acquisition & Wrangling
+
+From Wikipedia, we acquired data in increments of every five years from lists of year-end Billboard Hot 100 hits for 1980, 1985, 1990, 1995, 2000, 2005, 2010, and 2015. We did this by using html which allowed us to take the tables directly from the website and save them as individual datasets for each increment. Once these datasets were obtained, we mutated a new column in each, “Year,” for when we join them. These tables, however, included only ranking, title, artist, and year of each song, no genre data.
+
+Genre data for 2010-2015 was pulled from a spotify dataset. Genre data for 1995-2005 was collected from wikipedia. Genre data for 1980-1990 was pulled from wikipedia pages for songs, using the first genre listed. If no genre was listed, the genre was derived from the album the song appears on. The genres found were:
+
+1.  Rock- contains all sub genres, hard rock, soft rock, prog rock, art rock, glam rock, yacht rock, heartland rock, etc.
+
+2.  Pop-contains all sub genres art-pop, synth-pop, new-wave, electro-pop, etc.
+
+3.  Soul-contains blue-eyed soul
+
+4.  Disco-contains post-disco
+
+5.  R&B-contains downtempo
+
+6.  Funk
+
+7.  Jazz
+
+8.  Country
+
+9.  Dance-contains House, EDM
+
+10. Hip-Hop-contains New Jack Swing, Electro-Hop, Hip-House, Alternative Hip-Hop, Trap
+
+11. Punk
+
+12. Rap
+
+Sub-genres of music, rock and pop especially, were combined into one category because of the variety of sub-genres available. If they had been divided into each individual type of rock or pop, we may not be able to visualize trends when presenting our data later.
+
+Once genres were assigned to their respective songs by using a left join by title to the original datasets, we were able to join all eight datasets together in order to create our visualizations.
+
+
+### Visualization of Change
+
+#### 1980
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: Nineteen Eighty
+
+library(tidyverse)
+library(tidytext)
+
+okabe_ito<-unname(palette.colors(palette = "Okabe-Ito")[2:8]) 
+
+okabe_ito
+
+genre_order<-c("Country","Dance","Disco","Funk","Hip Hop","Jazz","Pop","Punk","Rap","R&B","Rock","Soul")
+
+songs_1980<-read_csv("Data/Processed/songs_1980.csv")
+
+songs_1980%>%
+  group_by(Genre)%>%
+  count()
+
+songs_1980%>%
+  ggplot(aes(x=fct(Genre,genre_order),fill=okabe_ito[5]))+
+  geom_bar()+
+  scale_fill_manual(values=okabe_ito[5])+
+  labs(title="1980 Billboard Top 100 by Genre",x="Genre",y="Number of Songs",subtitle="Rock is the most popular genre by far, followed by Pop and Disco")+
+  theme_minimal()+
+  theme(legend.position = "none")
+
+
+```
+
+In 1980, Rock is the most overwhelmingly popular genre represented in the year end Billboard Top 100 songs, at 43 songs out of 100. Following it are Pop and Disco, at 15 and 13 songs respectively.
+
+#### 1985
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: Nineteen Eighty-Five
+
+songs_1985<-read_csv("Data/Processed/songs_1985.csv")
+
+songs_1985%>%
+  group_by(Genre)%>%
+  count()
+  
+songs_1985%>%
+  ggplot(aes(x=fct(Genre,genre_order),fill=okabe_ito[5]))+
+  geom_bar()+
+  scale_fill_manual(values=okabe_ito[5])+
+  labs(title="1985 Billboard Top 100 by Genre",x="Genre",y="Number of Songs",subtitle="Rock remains popular while the number of Pop songs grows")+
+   theme_minimal()+
+  theme(legend.position="none")
+
+```
+
+In 1985, we see that Rock remains incredibly popular at 40 songs. Pop begins to grow in number as well, at 36 songs, just below Rock. Disco, however, took a sharp dive to 3 songs.
+
+#### 1990
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: Nineteen Ninety
+
+songs_1990<-read_csv("Data/Processed/songs_1990.csv")
+
+songs_1990%>%
+  group_by(Genre)%>%
+  count()
+
+songs_1990%>%
+  ggplot(aes(x=fct(Genre,genre_order),fill=okabe_ito[5]))+
+  geom_bar()+
+  scale_fill_manual(values=okabe_ito[5])+
+  labs(title="1990 Billboard Top 100 by Genre",x="Genre",y="Number of Songs",subtitle="The top 100 grows more diverse, though Rock and Pop 
+       remain most popular")+
+   theme_minimal()+
+  theme(legend.position="none")
+
+```
+
+In 1990, Pop surpasses Rock's popularity at 29 songs over Rock's 27. Overall, the division of genres in the top 100 becomes more diverse, with a sharp increase in Dance, Hip Hop, and the steady growth of R&B.
+
+#### 1995
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: Nineteen Ninety-Five
+
+songs_1995_2005<-read_csv("Data/Processed/songs_1995_2005.csv")
+
+songs_1995_2005%>%
+  filter(year==1995)%>%
+  group_by(Genre)%>%
+  count()
+
+songs_1995_2005 |>
+  filter(year==1995) |> 
+  group_by(Genre) |>
+  summarise(n = n()) |>
+  ggplot(aes(x = Genre, y = n, fill = okabe_ito[5])) +
+  geom_col() +
+  scale_fill_manual(values = okabe_ito[5]) +
+  labs(title = "Billboard Top 100 Songs From 1995 by Genre",
+       subtitle = "R&B and Hip-Hop Appear to be the Most Popular Genres.",
+       x = "Genre",
+       y = "Number of Songs")+
+   theme_minimal()+
+  theme(legend.position="null")
+
+
+```
+
+In 1995, there seems to be a heavy emphasis on R&B (35) and Rock (24), and the emergence of Rap. Compared to 1990, Pop decreased in popularity. Hip Hop remains moderately popular.
+
+#### 2000
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: Two thousand
+
+songs_1995_2005%>%
+  filter(year==2000)%>%
+  group_by(Genre)%>%
+  count()
+
+  songs_1995_2005 |>
+    filter(year==2000) |> 
+  group_by(Genre) |>
+    summarise(n = n()) |>
+    ggplot(aes(x = Genre, y = n, fill = okabe_ito[5])) +
+    geom_col() +
+    scale_fill_manual(values = okabe_ito[5]) +
+    labs(title = "Billboard Top 100 Songs From 2000 by Genre",
+         subtitle = "Hip Hop and Pop Appear to be the Most Popular Genres.",
+         x = "Genre",
+         y = "Number of Songs")+
+     theme_minimal()+
+    theme(legend.position="null")
+
+
+```
+
+In 2000, you see a big resurgence of Pop, while R&B continues to be popular. Country sees a rise in popularity at 13 songs.
+
+#### 2005
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: Two thousand five
+
+songs_1995_2005%>%
+  filter(year==2005)%>%
+  group_by(Genre)%>%
+  count()
+
+ songs_1995_2005 |>
+    filter(year==2005) |> 
+  group_by(Genre) |>
+    summarise(n = n()) |>
+    ggplot(aes(x = Genre, y = n, fill = okabe_ito[5])) +
+    geom_col() +
+    scale_fill_manual(values = okabe_ito[5]) +
+    labs(title = "Billboard Top 100 Songs From 2005 by Genre",
+         subtitle = "Hip Hop Appears to be the Most Popular Genre.",
+         x = "Genre",
+         y = "Number of Songs")+
+   theme_minimal()+
+  theme(legend.position="null")
+
+
+```
+
+In 2005, Hip-Hop rose to the top while R&B stayed consistent. The Punk and Rap genres begin to grow.
+
+
+#### 2010
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: twenty ten
+
+songs_2010<-read_csv("Data/Processed/songs_2010.csv")
+
+songs_2010%>%
+  group_by(Genre)%>%
+  count()
+
+songs_2010 |>
+  group_by(Genre) |>
+  summarise(n = n()) |>
+  ggplot(aes(x = Genre, y = n, fill = okabe_ito[5])) +
+  geom_col() +
+  scale_fill_manual(values=okabe_ito[5]) +
+  labs(title = "Billboard Top 100 Songs From 2010 by Genre",
+       subtitle = "Hip Hop and Pop Appear to be the Most Popular Genres",
+       x = "Genre",
+       y = "Number of Songs")+
+  theme_minimal()+
+  theme(legend.position = "null")
+
+```
+
+For 2010, it looks like Pop is the most popular genre followed by Hip Hop. Disco and Funk have declined.
+
+#### 2015
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: twenty fifteen
+
+songs_2015<-read_csv("Data/Processed/songs_2015.csv")
+
+songs_2015%>%
+  group_by(Genre)%>%
+  count()
+
+songs_2015 |>
+  group_by(Genre) |>
+  summarise(n = n()) |>
+  ggplot(aes(x = Genre, y = n, fill = okabe_ito[5])) +
+  geom_col() +
+  scale_fill_manual(values=okabe_ito[5]) +
+  labs(title = "Billboard Top 100 Songs From 2015 by Genre",
+       subtitle = "Pop and Hip Hop Appear to be the Most Popular Genres.",
+       x = "Genre",
+       y = "Number of Songs")+
+  theme_minimal()+
+  theme(legend.position = "null")
+
+```
+
+Pop continues its dominance on the charts. Country and Dance have declined, Disco gained some slight popularity, and Soul and Rap have increased at the expense of R&B.
+
+#### Change Over Time
+
+To further visualize the changes in genre popularity over time, we utilized stacked bar graphs and a line plot.
+
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: Visualizing Change Over Time by Bar Plot
+
+combined_songs<-read_csv("Data/Processed/combined_songs_all.csv")
+
+combined_songs<-combined_songs%>%
+  mutate(Genre=case_when(Genre=="Hip-Hop"~"Hip Hop",TRUE~Genre))
+
+```
+
+
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: Visualizing Change Over Time by Line Plot
+
+combined_songs |>
+  group_by(Genre, year) |>
+  filter(Genre%in%c("Rock","Pop","R&B","Hip Hop"))%>%
+  summarise(n = n()) |>
+  ggplot(aes(x = year, y = n)) +
+  geom_point() +
+  labs(title = "Most Popular Music Genre Over Time",
+       x = "Year",
+       y = "Number of Songs in Billboard Charts") +
+  geom_smooth(aes(color = Genre),se=FALSE,method="loess",span=0.35) +
+  scale_color_manual(values = okabe_ito[3:6])+
+  guides(shape="none")+
+  theme_minimal()
+
+```
+
+From 1980 to 2015, Pop has greatly risen in popularity on the charts. Hip Hop has also gained relevance. Rock experienced a large decline. Other genres not pictured appear to be more or less stable, remaining under ten songs in each year increment.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: Lesser genres
+
+combined_songs |>
+  group_by(Genre, year) |>
+  filter(Genre%in%c("Country","Soul","Dance"))%>%
+  summarise(n = n()) |>
+  ggplot(aes(x = year, y = n)) +
+  geom_point() +
+  labs(title = "Less Popular Music Genres Over Time",
+       x = "Year",
+       y = "Number of Songs in Billboard Charts") +
+  geom_smooth(aes(color = Genre),se=FALSE,method="loess",span=0.35) +
+  scale_color_manual(values = okabe_ito[3:6])+
+  guides(shape="none")+
+  theme_minimal()
+
+```
+
+Some consistently appearing but less common genres that consistently appeared in the top 100 were Country, Dance, and Soul. While they never became the most popular genre, they seem to remain relatively steady in popularity. This could be because of the ability of these genres to evolve their sound within new music trends and still be considered the same genre.
+
+### Conclusion
+
+To answer our initial question, yes, music genres' popularity does change greatly over time. Pop's popularity has been very cyclical but increased overall. Rock was initially the most popular genre but declined to the least popular in the top 4. R&B peaked in 1995 and slowly declined. Hip Hop has risen in popularity but is starting to decline in 2010. People's preferences in music genres appear to vary over time, which could be due to generational differences.
